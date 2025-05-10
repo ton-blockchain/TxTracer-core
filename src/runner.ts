@@ -1,4 +1,4 @@
-import {RetraceResult} from "./types"
+import {TraceResult} from "./types"
 import {
     collectUsedLibraries,
     computeFinalData,
@@ -31,12 +31,12 @@ import {Buffer} from "node:buffer"
  * 4.  Emulate the target transaction itself with full VM verbosity.
  * 5.  Parse the resulting VM log (`c5`, action list, stack trace), compare the
  *     calculated state‑hash with the on‑chain one and assemble a
- *     `RetraceResult` object for the caller.
+ *     `TraceResult` object for the caller.
  *
  * @param testnet  When `true`, work against testnet endpoints; otherwise mainnet.
  * @param txLink   Hex hash that uniquely identifies the transaction to retrace.
  *
- * @returns        A {@link RetraceResult} containing:
+ * @returns        A {@link TraceResult} containing:
  *                 1. an integrity flag `stateUpdateHashOk`
  *                 2. decoded an incoming message (sender / contract / amount)
  *                 3. balance delta, gas and fees
@@ -49,7 +49,7 @@ import {Buffer} from "node:buffer"
  *                 diverges (TVM returns non‑success); or if state‑hash
  *                 mismatch is detected after replay.
  */
-export const retrace = async (testnet: boolean, txLink: string): Promise<RetraceResult> => {
+export const retrace = async (testnet: boolean, txLink: string): Promise<TraceResult> => {
     const baseTx = await findBaseTxByHash(testnet, txLink)
     if (baseTx === undefined) {
         throw new Error("Cannot find transaction info")

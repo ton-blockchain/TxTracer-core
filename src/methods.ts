@@ -19,7 +19,7 @@ import {
     BlockInfo,
     BlocksResponse,
     RawTransaction,
-    RetraceMoneyResult,
+    TraceMoneyResult,
     TransactionData,
     ComputeInfo,
     GetLibResponse,
@@ -546,7 +546,7 @@ export const computeFinalData = (res: EmulationResultSuccess, balanceBefore: big
 
     if (emulatedTx.description.type !== "generic") {
         throw new Error(
-            "Retracer doesn't support non-generic transaction. Given type: " +
+            "TxTracer doesn't support non-generic transaction. Given type: " +
                 emulatedTx.description.type,
         )
     }
@@ -566,7 +566,7 @@ export const computeFinalData = (res: EmulationResultSuccess, balanceBefore: big
                   gasFees: computePhase.gasFees,
               }
 
-    const money: RetraceMoneyResult = {
+    const money: TraceMoneyResult = {
         balanceBefore,
         sentTotal,
         totalFees,

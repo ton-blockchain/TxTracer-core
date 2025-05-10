@@ -243,7 +243,7 @@ export type ComputeInfo =
           gasFees: bigint
       }
 
-export interface RetraceInMessage {
+export interface TraceInMessage {
     /**
      * Sender of in-message
      *
@@ -262,7 +262,7 @@ export interface RetraceInMessage {
     amount: bigint | undefined
 }
 
-export interface RetraceEmulatedTx {
+export interface TraceEmulatedTx {
     /**
      * Unix timestamp of the emulated transaction
      */
@@ -295,7 +295,7 @@ export interface RetraceEmulatedTx {
     vmLogs: string
 }
 
-export interface RetraceMoneyResult {
+export interface TraceMoneyResult {
     /**
      * Account balance before transaction
      */
@@ -315,8 +315,8 @@ export interface RetraceMoneyResult {
     balanceAfter: bigint
 }
 
-// Retracer result
-export interface RetraceResult {
+// TxTracer result
+export interface TraceResult {
     /**
      * Sets to true if the emulated transaction hash is equal to one from the real blockchain
      */
@@ -328,15 +328,15 @@ export interface RetraceResult {
     /**
      * Information about in-message
      */
-    inMsg: RetraceInMessage
+    inMsg: TraceInMessage
     /**
      * Information about money-related things
      */
-    money: RetraceMoneyResult
+    money: TraceMoneyResult
     /**
      * Information about emulated transaction
      */
-    emulatedTx: RetraceEmulatedTx
+    emulatedTx: TraceEmulatedTx
     emulatorVersion: {
         commitHash: string
         commitDate: string
