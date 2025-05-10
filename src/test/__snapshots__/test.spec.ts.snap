@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`transactions should return correct information for simple transaction with exit code 0 1`] = `"b5ee9c724101010100710000deff0020dd2082014c97ba218201339cbab19f71b0ed44d0d31fd31f31d70bffe304e0a4f2608308d71820d31fd31fd31ff82313bbf263ed44d0d31fd31fd3ffd15132baf2a15144baf2a204f901541055f910f2a3f8009320d74a96d307d402fb00e8d101a4c8cb1fcb1fcbffc9ed5410bd6dad"`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 2`] = `"EQBOMTBk8PKr2Q7zP5vd6q6mZ8FOOb9-j8TQRUnsgV4fcPkC"`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 3`] = `"EQDbT9aMftGVEALdCvIsNM-gjnC9iP1KbHaYlqTiOeRscjiF"`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 4`] = `165712462n`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 5`] = `55778062000001n`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 6`] = `1743947933`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 7`] = `
+{
+  "exitCode": 0,
+  "gasFees": 40000n,
+  "gasUsed": 62n,
+  "success": true,
+  "vmSteps": 3,
+}
+`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 8`] = `"x{}"`;
+
+exports[`transactions should return correct information for simple transaction with exit code 0 9`] = `
+{
+  "balanceAfter": 15744810683n,
+  "balanceBefore": 15579138222n,
+  "sentTotal": 0n,
+  "totalFees": 40001n,
+}
+`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 1`] = `"b5ee9c7241010101002300084202c95a2ed22ab516f77f9d4898dc4578e72f18a2448e8f6832334b0b4bf501bc794eb848f4"`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 2`] = `"EQBbsMjyLRj-xJE4eqMbtgABvPq34TF_hwiAGEAUGUb5sNGO"`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 3`] = `"EQCBGpUhc5nZED1PFfpl_s4lxZHqbPZZ8QrhjdrpExwRV6xN"`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 4`] = `218838398n`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 5`] = `55778061000001n`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 6`] = `1743947933`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 7`] = `
+{
+  "exitCode": 0,
+  "gasFees": 3140400n,
+  "gasUsed": 7851n,
+  "success": true,
+  "vmSteps": 192,
+}
+`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 8`] = `
+"x{0EC3C86DA0}
+ x{}
+ x{62002DD86479168C7F62489C3D518DDB0000DE7D5BF098BFC384400C200A0CA37CD80000000000000000000000000001}
+  x{06ECD527000000653A655FCA4B2D05E00352489C8014A4EADF32E037DA5A3481B5E0DA5DA2DAE6304CEB086953F9E1B70A8E821E15680ED8AB640}
+   x{8014A4EADF32E037DA5A3481B5E0DA5DA2DAE6304CEB086953F9E1B70A8E821E157002949D5BE65C06FB4B469036BC1B4BB45B5CC6099D610D2A7F3C36E151D043C2AE005293AB7CCB80DF6968D206D78369768B6B98C133AC21A54FE786DC2A3A087855C_}"
+`;
+
+exports[`transactions should return correct information for transaction for code with several exotic library cells 9`] = `
+{
+  "balanceAfter": 0n,
+  "balanceBefore": 1000000n,
+  "sentTotal": 215710397n,
+  "totalFees": 3469595n,
+}
+`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 1`] = `"b5ee9c7241010101002300084202d6cb00f1f9059412776e9b0c5fa92a496c16ff6b7cffaa0889e11d7ad377a786c9ed24b4"`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 2`] = `"EQByjaOja6-prxDrniGIzs-lBmNnP-nsvGxH1X2y4M3M5sjm"`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 3`] = `"EQBwpBGEAb-NgjUxpmARAgVl8C4F_5GsXxZ3dpsA1qzQerNl"`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 4`] = `305568399n`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 5`] = `55779065000003n`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 6`] = `1743950479`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 7`] = `
+{
+  "exitCode": 0,
+  "gasFees": 7180400n,
+  "gasUsed": 17951n,
+  "success": true,
+  "vmSteps": 461,
+}
+`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 8`] = `
+"x{0EC3C86D80}
+ x{36E6B809005056FC2E1564_}
+  x{}
+ x{62000BADCE01DCAA50634F64041D918CEBF7A6AEF7A4B212FF384337D66B06CD871B0000000000000000000000000003C_}
+  x{34_}
+   x{02A9338ECD624CA15D37E4A8D9BF677DDC9B84F0E98F05F2FB84C7AFE332A281B4}
+   x{00000000280029_}
+    x{800E1482308037F1B046A634CC022040ACBE05C0BFF2358BE2CEEED3601AD59A0F500048EF2ABAA4D1A348F636624A8200EB7A61A4108AB59E1915E6D61B7BF8564942003946D1D1B5D7D4D78875CF10C46767D28331B39FF4F65E3623EABED97066E6734_}
+     x{02C00836440D084E44FB94316132AC5A21417EF4F429EE09B5560B5678B334C3E8}
+     x{02C95A2ED22AB516F77F9D4898DC4578E72F18A2448E8F6832334B0B4BF501BC79}
+  x{6664DE2A00000000000000008017CFFC0F0AFE68A698966AFD2BFE3618014216290A92A106000BC03A88235165E08EE6B2801_}
+   x{6664DE2A8002477955D5268D1A47B1B3125410075BD30D208455ACF0C8AF36B0DBDFC2B24A1002F9FF81E15FCD14D312CD5FA57FC6C3002842C521525420C001780751046A2CBE005F3FF03C2BF9A29A6259ABF4AFF8D860050858A42A4A8418002F00EA208D45978000000033F94AFFC_}
+    x{61C9A05AC6E958017CFFC0F0AFE68A698966AFD2BFE3618014216290A92A106000BC03A88235165E10003240037BD8AC8CF61D228F0FDBAE7877F1348701D76B85B2D671BE43E4872603A1BE7}
+     x{000027114E6F304F535A6E554C71}"
+`;
+
+exports[`transactions should return correct information for transaction for code with single exotic library cell 9`] = `
+{
+  "balanceAfter": 23349879126n,
+  "balanceBefore": 23349879126n,
+  "sentTotal": 296117198n,
+  "totalFees": 7937322n,
+}
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 1`] = `"b5ee9c72410214010002d4000114ff00f4a413f4bcf2c80b01020120020f020148030602e6d001d0d3032171b0925f04e022d749c120925f04e002d31f218210706c7567bd22821064737472bdb0925f05e003fa403020fa4401c8ca07cbffc9d0ed44d0810140d721f404305c810108f40a6fa131b3925f07e005d33fc8258210706c7567ba923830e30d03821064737472ba925f06e30d0405007801fa00f40430f8276f2230500aa121bef2e0508210706c7567831eb17080185004cb0526cf1658fa0219f400cb6917cb1f5260cb3f20c98040fb0006008a5004810108f45930ed44d0810140d720c801cf16f400c9ed540172b08e23821064737472831eb17080185005cb055003cf1623fa0213cb6acb1fcb3fc98040fb00925f03e2020120070e020120080d020158090a003db29dfb513420405035c87d010c00b23281f2fff274006040423d029be84c600201200b0c0019adce76a26840206b90eb85ffc00019af1df6a26840106b90eb858fc00011b8c97ed44d0d70b1f80059bd242b6f6a2684080a06b90fa0218470d4080847a4937d29910ce6903e9ff9837812801b7810148987159f318404f8f28308d71820d31fd31fd31f02f823bbf264ed44d0d31fd31fd3fff404d15143baf2a15151baf2a205f901541064f910f2a3f80024a4c8cb1f5240cb1f5230cbff5210f400c9ed54f80f01d30721c0009f6c519320d74a96d307d402fb00e830e021c001e30021c002e30001c0039130e30d03a4c8cb1f12cb1fcbff10111213006ed207fa00d4d422f90005c8ca0715cbffc9d077748018c8cb05cb0222cf165005fa0214cb6b12ccccc973fb00c84014810108f451f2a7020070810108d718fa00d33fc8542047810108f451f2a782106e6f746570748018c8cb05cb025006cf165004fa0214cb6a12cb1fcb3fc973fb0002006c810108d718fa00d33f305224810108f459f2a782106473747270748018c8cb05cb025005cf165003fa0213cb6acb1f12cb3fc973fb00000af400c9ed5408f8e528"`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 2`] = `undefined`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 3`] = `"EQBAmIBdInKmGzdTUMay9fqq8nyCZ9jnUh_yBFEE_cfedniG"`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 4`] = `undefined`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 5`] = `56246475000001n`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 6`] = `1745092405`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 7`] = `
+{
+  "exitCode": 0,
+  "gasFees": 1323200n,
+  "gasUsed": 3308n,
+  "success": true,
+  "vmSteps": 68,
+}
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 8`] = `
+"x{0EC3C86D02}
+ x{}
+ x{420036A238FC07626A7D421DB0AABAD5AD17E1C658CD7F16A72A772851C23BDD698A21DCD6500000000000000000000000000000}"
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v4 9`] = `
+{
+  "balanceAfter": 21304049041n,
+  "balanceBefore": 22309051448n,
+  "sentTotal": 999600000n,
+  "totalFees": 5135738n,
+}
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 1`] = `"b5ee9c7241021401000281000114ff00f4a413f4bcf2c80b01020120020d020148030402dcd020d749c120915b8f6320d70b1f2082106578746ebd21821073696e74bdb0925f03e082106578746eba8eb48020d72101d074d721fa4030fa44f828fa443058bd915be0ed44d0810141d721f4058307f40e6fa1319130e18040d721707fdb3ce03120d749810280b99130e070e2100f020120050c020120060902016e07080019adce76a2684020eb90eb85ffc00019af1df6a2684010eb90eb858fc00201480a0b0017b325fb51341c75c875c2c7e00011b262fb513435c280200019be5f0f6a2684080a0eb90fa02c0102f20e011e20d70b1f82107369676ebaf2e08a7f0f01e68ef0eda2edfb218308d722028308d723208020d721d31fd31fd31fed44d0d200d31f20d31fd3ffd70a000af90140ccf9109a28945f0adb31e1f2c087df02b35007b0f2d0845125baf2e0855036baf2e086f823bbf2d0882292f800de01a47fc8ca00cb1f01cf16c9ed542092f80fde70db3cd81003f6eda2edfb02f404216e926c218e4c0221d73930709421c700b38e2d01d72820761e436c20d749c008f2e09320d74ac002f2e09320d71d06c712c2005230b0f2d089d74cd7393001a4e86c128407bbf2e093d74ac000f2e093ed55e2d20001c000915be0ebd72c08142091709601d72c081c12e25210b1e30f20d74a111213009601fa4001fa44f828fa443058baf2e091ed44d0810141d718f405049d7fc8ca0040048307f453f2e08b8e14038307f45bf2e08c22d70a00216e01b3b0f2d090e2c85003cf1612f400c9ed54007230d72c08248e2d21f2e092d200ed44d0d2005113baf2d08f54503091319c01810140d721d70a00f2e08ee2c8ca0058cf16c9ed5493f2c08de20010935bdb31e1d74cd0b4d6c35e"`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 2`] = `undefined`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 3`] = `"EQAGV9thOGkeBhzFzLOom0er5l6ertdXHWDoQv4yoKL1ELkU"`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 4`] = `undefined`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 5`] = `55778062000001n`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 6`] = `1743947933`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 7`] = `
+{
+  "exitCode": 0,
+  "gasFees": 1975600n,
+  "gasUsed": 4939n,
+  "success": true,
+  "vmSteps": 143,
+}
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 8`] = `
+"x{0EC3C86D03}
+ x{}
+ x{4200429221FC2CCFF352ED1A7F21824D62705F59838DD95FDAB31AF54A10943E141D20DB0F1A0000000000000000000000000001}
+  x{000000003130302054656C656772616D205374617273200A0A52656623573069313642655568}"
+`;
+
+exports[`transactions should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate 9`] = `
+{
+  "balanceAfter": 10895548167n,
+  "balanceBefore": 11358352965n,
+  "sentTotal": 459400000n,
+  "totalFees": 3030395n,
+}
+`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 1`] = `"b5ee9c72410210010003a1000114ff00f4a413f4bcf2c80b01020162020f0202cc0307020148040601b1420c700925f04e001d0d3030171b0925f04e0fa40fa4031fa003171d721fa0031fa003073a9b40002d31f2182100f8a7ea5ba95313459f009e0218210178d4519ba9631444403f00ae06c33018200d500bae3025b840ff2f08050076ed44d0fa00fa40fa407001d420d749c23f966c12d33f30019130e210245f0458c705f2e2c6f404f40430216e91319301fb04e2206e913092ed54e200114fa4430c000f2e14d8020148080c01f5503d33ffa00fa4021f002ed44d0fa00fa40fa407001d420d749c23f966c12d33f30019130e2f82358a1810708bcf2e2c2522ac705f2e2c15cc705945125a102df22c2fff2e2c254740870542013541403c85004fa0258cf1601cf16ccc922c8cb0112f400f400cb00c920f9007074c8cb02ca07cbffc9d005fa4080902fef40431fa00705395c7058e303082107bdd97dec8cb1f52b0cb3f2afa0226cf1623cf16c9718018c8cb0527cf16820bc14dc0fa02cb6accc971fb007fde098d0860015163e2c083d73cfd2c05b5cb1eacf87d93a194fd30afac2c1b9457b2fc2201a4c705e30020d749c200f2e2c48210178d4519c8cb1f1bcb3f5009fa02240a0b0058388200b580c8cb1f52a0cb3f29fa0225cf16c9718018c8cb0526cf16820bc14dc0fa02cb6accc971fb007f0800c8cf1601cf1627fa025008cf16c9778018c8cb055006cf1670fa0215cb6b17cc13cc08aa0014a08208e4e1c0aa0082084c4b40a0a002968210042c1d809170e212a014bcf2e2c582084c4b4070fb0204c98306fb0058c85004fa0258cf1601cf16ccc9ed5401d545f03ed44d0fa00fa40fa407001d420d749c23f966c12d33f30019130e2f82358a1810708bcf2e2c205d33ffa00248d0860015163e2c083d73cfd2c05b5cb1eacf87d93a194fd30afac2c1b9457b2fc2201a4c7055354c705b1945151a005dffa40fa405358c70554736a80d01fe70542013541403c85004fa0258cf1601cf16ccc922c8cb0112f400f400cb00c9f9007074c8cb02ca07cbffc9d0500ac70519b1f2e2c307fa00218e2d82107362d09cc8cb1f5250cb3f5004fa0258cf1658cf16c9718010c8cb0526cf165003fa0212cb6accc971fb00925f04e282084c4b4070fb028210d53276db708010c80e0068cb0527d70b01c30093372307df5007cf1626fa0216cb6a15cb1f14cb3fc9810082fb004003c85004fa0258cf1601cf16ccc9ed54003da0f605da89a1f401f481f480e003a841ae93847f2cd825a67e60032261c46388c2c8d3"`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 2`] = `"EQA57MzZEioTxBsPVxBMVs86meCyT8JDvdYAoiDNYfnCVtpX"`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 3`] = `"EQDDu8CeRPbV2YRuwVE6eubWs0SPynt9O0iDtdf-0uTFx5Rt"`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 4`] = `150000000n`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 5`] = `48199380000001n`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 6`] = `1722684736`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 7`] = `
+{
+  "exitCode": 709,
+  "gasFees": 3918000n,
+  "gasUsed": 9795n,
+  "success": false,
+  "vmSteps": 220,
+}
+`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 8`] = `undefined`;
+
+exports[`transactions should return correct information for transaction without libs and exit code 709 9`] = `
+{
+  "balanceAfter": 4999606n,
+  "balanceBefore": 5000000n,
+  "sentTotal": 145682000n,
+  "totalFees": 4051725n,
+}
+`;

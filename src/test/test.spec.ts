@@ -1,0 +1,106 @@
+import {retrace} from "../runner"
+import {RetraceResult} from "../types"
+
+const DEFAULT_TIMEOUT = 10_000
+
+describe("transactions", () => {
+    it(
+        "should return correct information for transaction without libs and exit code 709",
+        async () => {
+            const txLink = "3c1b02a33390e596d83b306eab57b3f7271bc90e2e527ea4cafccfde25139d41"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for simple transaction with exit code 0",
+        async () => {
+            await wait(5000)
+
+            const txLink = "9432b11f810c58b38658cbc41c52dd01cf3af18e950d375dcc867077554e4550"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for transaction for code with single exotic library cell",
+        async () => {
+            await wait(5000)
+
+            const txLink = "4295a2c06ca9b0242d4b6638e4eb1a8da91a9d75dbeae4acc13a4355a4dd7a6a"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for transaction for code with several exotic library cells",
+        async () => {
+            await wait(5000)
+
+            const txLink = "440e0490bd5efee08b23cf33e2cfd9b8d414c4cb717d3f92727fa49d4c51a09d"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate",
+        async () => {
+            await wait(5000)
+
+            const txLink = "d6b814f76ec8cae17664ceba18b978e510f2249b36a35bf7227db121c1516e96"
+            const testnet = false
+
+            // wrong totalFee, likely bug in the sandbox
+            const res = await retrace(testnet, txLink)
+            checkResult(res, false)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for transaction with external-in message for wallet v4",
+        async () => {
+            await wait(5000)
+
+            const txLink = "f8b7a5b598c65ecb180338eec103bf28c199bf8346453342eb7022ccf2ea39f6"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    function checkResult(res: RetraceResult, expectedOk: boolean = true): void {
+        expect(res.stateUpdateHashOk).toEqual(expectedOk)
+        expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
+        expect(res.inMsg.sender?.toString()).toMatchSnapshot()
+        expect(res.inMsg.contract.toString()).toMatchSnapshot()
+        expect(res.inMsg.amount).toMatchSnapshot()
+        expect(res.emulatedTx.lt).toMatchSnapshot()
+        expect(res.emulatedTx.utime).toMatchSnapshot()
+        expect(res.emulatedTx.computeInfo).toMatchSnapshot()
+        expect(res.emulatedTx.c5?.toString()).toMatchSnapshot()
+        expect(res.money).toMatchSnapshot()
+    }
+
+    async function wait(delay: number): Promise<unknown> {
+        return new Promise(resolve => setTimeout(resolve, delay))
+    }
+})

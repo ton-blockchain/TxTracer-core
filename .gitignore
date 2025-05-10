@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+.idea
+dist/
+
+# yarn
+yarn-error.log
+.yarn/
+
+# eslint
+.eslintcache
+
+# coverage
+coverage/
