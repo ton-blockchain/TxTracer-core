@@ -1,7 +1,8 @@
 import {retrace} from "../runner"
 import {RetraceResult} from "../types"
 
-const DEFAULT_TIMEOUT = 10_000
+const DEFAULT_TIMEOUT = 100_000
+const DELAY_FOR_RATE_LIMIT = process.env["CI"] === undefined ? 5000 : 10_000
 
 describe("transactions", () => {
     it(
@@ -19,7 +20,7 @@ describe("transactions", () => {
     it(
         "should return correct information for simple transaction with exit code 0",
         async () => {
-            await wait(5000)
+            await wait()
 
             const txLink = "9432b11f810c58b38658cbc41c52dd01cf3af18e950d375dcc867077554e4550"
             const testnet = false
@@ -33,7 +34,7 @@ describe("transactions", () => {
     it(
         "should return correct information for transaction for code with single exotic library cell",
         async () => {
-            await wait(5000)
+            await wait()
 
             const txLink = "4295a2c06ca9b0242d4b6638e4eb1a8da91a9d75dbeae4acc13a4355a4dd7a6a"
             const testnet = false
@@ -47,7 +48,7 @@ describe("transactions", () => {
     it(
         "should return correct information for transaction for code with several exotic library cells",
         async () => {
-            await wait(5000)
+            await wait()
 
             const txLink = "440e0490bd5efee08b23cf33e2cfd9b8d414c4cb717d3f92727fa49d4c51a09d"
             const testnet = false
@@ -61,7 +62,7 @@ describe("transactions", () => {
     it(
         "should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate",
         async () => {
-            await wait(5000)
+            await wait()
 
             const txLink = "d6b814f76ec8cae17664ceba18b978e510f2249b36a35bf7227db121c1516e96"
             const testnet = false
@@ -76,7 +77,7 @@ describe("transactions", () => {
     it(
         "should return correct information for transaction with external-in message for wallet v4",
         async () => {
-            await wait(5000)
+            await wait()
 
             const txLink = "f8b7a5b598c65ecb180338eec103bf28c199bf8346453342eb7022ccf2ea39f6"
             const testnet = false
@@ -100,7 +101,7 @@ describe("transactions", () => {
         expect(res.money).toMatchSnapshot()
     }
 
-    async function wait(delay: number): Promise<unknown> {
-        return new Promise(resolve => setTimeout(resolve, delay))
+    async function wait(): Promise<unknown> {
+        return new Promise(resolve => setTimeout(resolve, DELAY_FOR_RATE_LIMIT))
     }
 })
