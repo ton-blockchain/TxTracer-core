@@ -67,7 +67,7 @@ All main types (transactions, blocks, messages, tracing results) are exported fr
 
 ## License
 
-MIT © The Tact Authors
+MIT © TON Studio
 
 ## Links
 
