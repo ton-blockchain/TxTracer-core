@@ -1107,6 +1107,7 @@ __metadata:
     "@ton/ton": "npm:^15.2.1"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.14.0"
+    axios: "npm:^1.6.7"
     esbuild: "npm:^0.25.2"
     eslint: "npm:^9.19.0"
     eslint-plugin-unicorn: "npm:^56.0.1"

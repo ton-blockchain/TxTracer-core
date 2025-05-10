@@ -33,7 +33,8 @@
     "dependencies": {
         "@ton/core": "^0.60.1",
         "@ton/sandbox": "^0.28.0",
-        "@ton/ton": "^15.2.1"
+        "@ton/ton": "^15.2.1",
+        "axios": "^1.6.7"
     },
     "devDependencies": {
         "@ton/crypto": "^3.3.0",
