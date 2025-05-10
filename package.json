@@ -1,5 +1,5 @@
 {
-    "name": "retracer-core",
+    "name": "@tact-lang/retracer-core",
     "version": "0.0.1",
     "description": "Core retracer library for collecting transaction information",
     "main": "dist/index.js",
