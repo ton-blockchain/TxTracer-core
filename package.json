@@ -1,7 +1,7 @@
 {
-    "name": "@tact-lang/retracer-core",
+    "name": "@tact-lang/txtracer-core",
     "version": "0.0.1",
-    "description": "Core retracer library for collecting transaction information",
+    "description": "Core TxTracer library for collecting transaction information",
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc --declaration",
@@ -18,14 +18,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/tact-lang/retracer-core.git"
+        "url": "git+https://github.com/tact-lang/txtracer-core.git"
     },
     "author": "TON Studio",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/tact-lang/retracer-core/issues"
+        "url": "https://github.com/tact-lang/txtracer-core/issues"
     },
-    "homepage": "https://github.com/tact-lang/retracer-core#readme",
+    "homepage": "https://github.com/tact-lang/txtracer-core#readme",
     "files": [
         "dist",
         "!dist/test"

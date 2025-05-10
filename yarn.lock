@@ -1097,9 +1097,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tact-lang/retracer-core@workspace:.":
+"@tact-lang/txtracer-core@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@tact-lang/retracer-core@workspace:."
+  resolution: "@tact-lang/txtracer-core@workspace:."
   dependencies:
     "@ton/core": "npm:^0.60.1"
     "@ton/crypto": "npm:^3.3.0"

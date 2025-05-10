@@ -1,5 +1,5 @@
 import {retrace} from "../runner"
-import {RetraceResult} from "../types"
+import {TraceResult} from "../types"
 
 const DEFAULT_TIMEOUT = 100_000
 const DELAY_FOR_RATE_LIMIT = process.env["CI"] === undefined ? 5000 : 10_000
@@ -60,7 +60,7 @@ describe("transactions", () => {
     )
 
     it(
-        "should return correct information for transaction with external-in message for wallet v5 that retracer cannot fully recreate",
+        "should return correct information for transaction with external-in message for wallet v5 that txtracer cannot fully recreate",
         async () => {
             await wait()
 
@@ -88,7 +88,7 @@ describe("transactions", () => {
         DEFAULT_TIMEOUT,
     )
 
-    function checkResult(res: RetraceResult, expectedOk: boolean = true): void {
+    function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
         expect(res.inMsg.sender?.toString()).toMatchSnapshot()
