@@ -88,7 +88,7 @@ export const retrace = async (testnet: boolean, txLink: string): Promise<TraceRe
     // retrieve block config to pass it to emulator
     const blockConfig = await getBlockConfig(testnet, fullBlock)
     const shardAccountBeforeTx = await getBlockAccount(testnet, baseTx.address, fullBlock)
-    const libs = await collectUsedLibraries(testnet, shardAccountBeforeTx, tx.tx)
+    const [libs, loadedCode] = await collectUsedLibraries(testnet, shardAccountBeforeTx, tx.tx)
 
     // retrieve code cell if account in active mode
     const state = shardAccountBeforeTx.account?.storage.state
@@ -132,7 +132,8 @@ export const retrace = async (testnet: boolean, txLink: string): Promise<TraceRe
 
     return {
         stateUpdateHashOk,
-        codeCell,
+        codeCell: loadedCode ?? codeCell,
+        originalCodeCell: codeCell,
         inMsg: {
             sender,
             contract,

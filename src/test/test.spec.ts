@@ -91,6 +91,7 @@ describe("transactions", () => {
     function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
+        expect(res.originalCodeCell?.toBoc().toString("hex")).toMatchSnapshot()
         expect(res.inMsg.sender?.toString()).toMatchSnapshot()
         expect(res.inMsg.contract.toString()).toMatchSnapshot()
         expect(res.inMsg.amount).toMatchSnapshot()

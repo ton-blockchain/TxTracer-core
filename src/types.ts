@@ -322,9 +322,15 @@ export interface TraceResult {
      */
     stateUpdateHashOk: boolean
     /**
-     * Code of an account before transaction
+     * Code of an account before transaction. If code is just an exotic cell,
+     * this field will contain actual library code, see {@link originalCodeCell}
+     * if you need original code cell.
      */
     codeCell: Cell | undefined
+    /**
+     * Code of an account before transaction
+     */
+    originalCodeCell: Cell | undefined
     /**
      * Information about in-message
      */

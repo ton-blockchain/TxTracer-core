@@ -291,29 +291,34 @@ export const getLibraryByHash = async (testnet: boolean, hash: string): Promise<
  * @param account   Current {@link ShardAccount} snapshot.
  * @param tx        Transaction whose `inMessage` may include `Init`.
  * @returns         Serialized dict cell or `undefined`
- *                  when no libraries are referenced.
+ *                  when no libraries are referenced and actual code cell if
+ *                  original code is just an exotic library cell
  */
 export const collectUsedLibraries = async (
     testnet: boolean,
     account: ShardAccount,
     tx: Transaction,
-): Promise<Cell | undefined> => {
+): Promise<[Cell | undefined, Cell | undefined]> => {
     const libs = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
 
-    const addMaybeExoticLibrary = async (code: Cell | undefined): Promise<void> => {
+    const addMaybeExoticLibrary = async (code: Cell | undefined): Promise<Cell | undefined> => {
         const EXOTIC_LIBRARY_TAG = 2
-        if (code === undefined) return
-        if (code.bits.length !== 256 + 8) return // not an exotic library cell
+        if (code === undefined) return undefined
+        if (code.bits.length !== 256 + 8) return undefined // not an exotic library cell
 
         const cs = code.beginParse(true) // allow exotics
         const tag = cs.loadUint(8)
-        if (tag !== EXOTIC_LIBRARY_TAG) return // not a library cell
+        if (tag !== EXOTIC_LIBRARY_TAG) return undefined // not a library cell
 
         const libHash = cs.loadBuffer(32)
         const libHashHex = libHash.toString("hex").toUpperCase()
         const actualCode = await getLibraryByHash(testnet, libHashHex)
         libs.set(BigInt(`0x${libHashHex}`), actualCode)
+        return actualCode
     }
+
+    // if current contract code is exotic cell, we want to return actual code to the user
+    let loadedCellCode: Cell | undefined = undefined
 
     // 1. scan the *current* contract code for exotic‑library links
     const state = account.account?.storage.state
@@ -322,7 +327,7 @@ export const collectUsedLibraries = async (
         // cell may itself be a 264‑bit exotic library reference (tag 2).
         // If that’s the case, download the real library code and
         // register it in the `libs` dictionary.
-        await addMaybeExoticLibrary(state.state.code ?? undefined)
+        loadedCellCode = await addMaybeExoticLibrary(state.state.code ?? undefined)
     }
 
     // 2. scan the *incoming StateInit* (if present)
@@ -337,10 +342,10 @@ export const collectUsedLibraries = async (
     }
 
     // no libs found, return undefined, for emulator this means no libraries
-    if (libs.size === 0) return undefined
+    if (libs.size === 0) return [undefined, loadedCellCode]
 
     // emulator expects libraries as a Cell with immediate dictionary
-    return beginCell().storeDictDirect(libs).endCell()
+    return [beginCell().storeDictDirect(libs).endCell(), loadedCellCode]
 }
 
 /**
