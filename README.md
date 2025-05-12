@@ -21,7 +21,7 @@ npm install @tact-lang/txtracer-core
 ## Quick Start
 
 ```ts
-import { retrace } from "@tact-lang/txtracer-core"
+import {retrace} from "@tact-lang/txtracer-core"
 
 // Example: trace a transaction by its hash
 const result = await retrace(false, "YOUR_TX_HASH")
@@ -33,7 +33,7 @@ console.log(result)
 ### Transaction Tracing
 
 ```ts
-import { retrace } from "@tact-lang/txtracer-core"
+import {retrace} from "@tact-lang/txtracer-core"
 
 /**
  * @param testnet - true for testnet, false for mainnet

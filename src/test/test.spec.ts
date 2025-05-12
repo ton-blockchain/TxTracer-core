@@ -88,6 +88,20 @@ describe("transactions", () => {
         DEFAULT_TIMEOUT,
     )
 
+    it(
+        "should return correct information for transaction for uninit transaction with StateInit code",
+        async () => {
+            await wait()
+
+            const txLink = "5abe43cce74d536cdae76b989e55f7b37c61381308b8f1a4b8ecc3098c4b8b39"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
     function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
