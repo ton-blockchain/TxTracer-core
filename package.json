@@ -1,5 +1,5 @@
 {
-    "name": "@tact-lang/txtracer-core",
+    "name": "@tonstudio/txtracer-core",
     "version": "0.0.1",
     "description": "Core TxTracer library for collecting transaction information",
     "main": "dist/index.js",

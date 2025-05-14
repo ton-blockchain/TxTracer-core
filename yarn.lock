@@ -1097,30 +1097,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tact-lang/txtracer-core@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@tact-lang/txtracer-core@workspace:."
-  dependencies:
-    "@ton/core": "npm:^0.60.1"
-    "@ton/crypto": "npm:^3.3.0"
-    "@ton/sandbox": "npm:^0.29.0"
-    "@ton/ton": "npm:^15.2.1"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.14.0"
-    axios: "npm:^1.6.7"
-    esbuild: "npm:^0.25.2"
-    eslint: "npm:^9.19.0"
-    eslint-plugin-unicorn: "npm:^56.0.1"
-    eslint-plugin-unused-imports: "npm:^4.1.4"
-    jest: "npm:^29.7.0"
-    prettier: "npm:3.4.2"
-    tact-asm: "npm:0.0.4"
-    ts-jest: "npm:^29.2.6"
-    typescript: "npm:^5.7.0"
-    typescript-eslint: "npm:^8.22.0"
-  languageName: unknown
-  linkType: soft
-
 "@ton/core@npm:^0.60.1":
   version: 0.60.1
   resolution: "@ton/core@npm:0.60.1"
@@ -1183,6 +1159,30 @@ __metadata:
   checksum: 10c0/a0e12b4d41a439a61c52a872a67cfaffb20f6a769cdba8880cdefc97fed54c2b0607972627508f75286638220bfb07465294096dbc6c9c23ce1e2a156798a306
   languageName: node
   linkType: hard
+
+"@tonstudio/txtracer-core@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@tonstudio/txtracer-core@workspace:."
+  dependencies:
+    "@ton/core": "npm:^0.60.1"
+    "@ton/crypto": "npm:^3.3.0"
+    "@ton/sandbox": "npm:^0.29.0"
+    "@ton/ton": "npm:^15.2.1"
+    "@types/jest": "npm:^29.5.14"
+    "@types/node": "npm:^22.14.0"
+    axios: "npm:^1.6.7"
+    esbuild: "npm:^0.25.2"
+    eslint: "npm:^9.19.0"
+    eslint-plugin-unicorn: "npm:^56.0.1"
+    eslint-plugin-unused-imports: "npm:^4.1.4"
+    jest: "npm:^29.7.0"
+    prettier: "npm:3.4.2"
+    tact-asm: "npm:0.0.4"
+    ts-jest: "npm:^29.2.6"
+    typescript: "npm:^5.7.0"
+    typescript-eslint: "npm:^8.22.0"
+  languageName: unknown
+  linkType: soft
 
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
