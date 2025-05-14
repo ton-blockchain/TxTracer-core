@@ -122,8 +122,8 @@ export const retrace = async (testnet: boolean, txLink: string): Promise<TraceRe
         throw new Error("Transaction failed")
     }
 
-    // find and parse out actions from the c5 control register
-    const {finalActions, c5} = findFinalActions(txRes.result.vmLog)
+    // extract out actions from the c5 control register
+    const {finalActions, c5} = findFinalActions(txRes.result)
 
     const {sender, contract, amount, money, emulatedTx, computeInfo} = computeFinalData(
         txRes.result,

@@ -589,40 +589,22 @@ export const computeFinalData = (res: EmulationResultSuccess, balanceBefore: big
 }
 
 /**
- * Parse the verbose VM log, extract the final `c5` register
- * (action list), decode it into an array of `OutAction`s and
+ * Extract the final `c5` register (action list) from emulation results,
+ * decode it into an array of `OutAction`s and
  * return both the list and the original `c5` cell.
  *
- * @param logs  Multi‑line VM log string from sandbox.
- * @returns     `{ finalActions, c5 }`
+ * @param res  Successful emulation result.
+ * @returns    `{ finalActions, c5 }`
  */
-export const findFinalActions = (logs: string) => {
-    let finalActions: OutAction[] = []
-    let c5: Cell | undefined = undefined
-    for (const line of logs.split("\n")) {
-        if (line.startsWith("final c5:")) {
-            const [thisFinalActions, thisC5] = parseC5(line)
-            finalActions = thisFinalActions
-            c5 = thisC5
-        }
+export const findFinalActions = (res: EmulationResultSuccess) => {
+    const actions = res.actions
+    if (actions === null) {
+        return {finalActions: [], c5: undefined}
     }
-    return {finalActions, c5}
-}
 
-/**
- * Convert a single log line that starts with `"final c5:"` into a
- * tuple `[actions, c5Cell]`, where `actions` is the decoded list of
- * `OutAction`s present in the TVM register `c5`.
- *
- * @param line  One line of VM log containing the hex‑encoded cell.
- * @returns     Parsed actions array and the raw `Cell`.
- */
-export const parseC5 = (line: string): [(OutAction | OutActionReserve)[], Cell] => {
-    // final c5: C{B5EE9C7...8877FA} -> B5EE9C7...8877FA
-    const cellBoc = Buffer.from(line.slice("final c5: C{".length, -1), "hex")
-    const c5 = Cell.fromBoc(cellBoc)[0]
-    const slice = c5.beginParse()
-    return [loadOutList(slice), c5]
+    const c5 = Cell.fromBase64(actions)
+    const finalActions = loadOutList(c5.asSlice())
+    return {finalActions, c5}
 }
 
 /**
