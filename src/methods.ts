@@ -6,8 +6,6 @@ import {
     loadOutList,
     loadShardAccount,
     loadTransaction,
-    OutAction,
-    OutActionReserve,
     ShardAccount,
     storeMessage,
     storeShardAccount,
