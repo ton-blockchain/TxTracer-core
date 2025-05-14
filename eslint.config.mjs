@@ -93,6 +93,7 @@ export default tseslint.config(
             "unicorn/no-array-reduce": "off",
             "unicorn/no-useless-undefined": "off",
             "unicorn/prefer-type-error": "off",
+            "unicorn/prefer-node-protocol": "off", // we need it as "buffer" for fallback
 
             "@/eqeqeq": "error",
         },

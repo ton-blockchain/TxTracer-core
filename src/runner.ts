@@ -15,7 +15,7 @@ import {
     prepareEmulator,
     shardAccountToBase64,
 } from "./methods"
-import {Buffer} from "node:buffer"
+import {Buffer} from "buffer"
 
 /**
  * Fully reproduce (re‑trace) a TON transaction inside a local TON Sandbox
