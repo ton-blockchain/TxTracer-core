@@ -102,6 +102,20 @@ describe("transactions", () => {
         DEFAULT_TIMEOUT,
     )
 
+    it(
+        "should return correct information for transaction with exotic cell library in in-message",
+        async () => {
+            await wait()
+
+            const txLink = "f64c6a3cdf3fad1d786aacf9a6130f18f3f76eeb71294f53bbd812ad3703e70a"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
     function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()

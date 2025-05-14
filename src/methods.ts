@@ -338,7 +338,7 @@ export const collectUsedLibraries = async (
         // be an exotic library cell. We must preload such libraries as
         // well, otherwise the sandbox would fail to resolve a library
         // during emulation.
-        await addMaybeExoticLibrary(init.code ?? undefined)
+        loadedCellCode ??= await addMaybeExoticLibrary(init.code ?? undefined)
     }
 
     // no libs found, return undefined, for emulator this means no libraries
