@@ -1,6 +1,6 @@
 {
     "name": "@tonstudio/txtracer-core",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "description": "Core TxTracer library for collecting transaction information",
     "main": "dist/index.js",
     "scripts": {
