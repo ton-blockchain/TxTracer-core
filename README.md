@@ -40,7 +40,16 @@ import {retrace} from "@tonstudio/txtracer-core"
  * @param txHash - hex transaction hash
  * @returns Detailed execution report (TraceResult)
  */
-const result = await retrace(testnet, txHash)
+const result1 = await retrace(testnet, txHash)
+
+/**
+ * Retrace transaction described as triple
+ */
+const result2 = await retraceBaseTx(testnet, {
+    lt: 56166043000001n,
+    hash: Buffer.from("T6Y6ZoW71mrznFA0RyU/xV5ILpz9WUPJ9i9/4xPq1Is=", "base64"),
+    address: Address.parse("EQCqKZrrce8Ss6SZaLI-OkH2w8-xtPP9_ZvyyIZLhy9Hmpf8"),
+})
 ```
 
 ### Helper Methods
