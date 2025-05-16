@@ -9,4 +9,3 @@ Add `retraceBaseTx` function to retrace transactions by their triple (`lt`, `has
 ## [0.0.1] - 2025-05-10
 
 Initial release
-
