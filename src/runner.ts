@@ -1,5 +1,6 @@
 import {TraceResult} from "./types"
 import {
+    BaseTxInfo,
     collectUsedLibraries,
     computeFinalData,
     computeMinLt,
@@ -54,6 +55,17 @@ export const retrace = async (testnet: boolean, txLink: string): Promise<TraceRe
     if (baseTx === undefined) {
         throw new Error("Cannot find transaction info")
     }
+    return retraceBaseTx(testnet, baseTx)
+}
+
+/**
+ * Fully reproduce (re‑trace) a TON transaction inside a local TON Sandbox
+ * and return a structured report with VM logs, money flow, generated
+ * actions and other data.
+ *
+ * See {@link retrace} for the full description of the workflow.
+ */
+export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promise<TraceResult> => {
     const [tx] = await findRawTxByHash(testnet, baseTx)
     // eslint bug
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

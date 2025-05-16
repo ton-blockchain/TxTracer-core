@@ -1,5 +1,7 @@
-import {retrace} from "../runner"
+import {retrace, retraceBaseTx} from "../runner"
 import {TraceResult} from "../types"
+import {Buffer} from "buffer"
+import {Address} from "@ton/core"
 
 const DEFAULT_TIMEOUT = 100_000
 const DELAY_FOR_RATE_LIMIT = process.env["CI"] === undefined ? 5000 : 10_000
@@ -111,6 +113,23 @@ describe("transactions", () => {
             const testnet = false
 
             const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should return correct information for base transaction",
+        async () => {
+            await wait()
+
+            const testnet = false
+
+            const res = await retraceBaseTx(testnet, {
+                lt: 56_166_043_000_001n,
+                hash: Buffer.from("T6Y6ZoW71mrznFA0RyU/xV5ILpz9WUPJ9i9/4xPq1Is=", "base64"),
+                address: Address.parse("EQCqKZrrce8Ss6SZaLI-OkH2w8-xtPP9_ZvyyIZLhy9Hmpf8"),
+            })
             checkResult(res)
         },
         DEFAULT_TIMEOUT,
