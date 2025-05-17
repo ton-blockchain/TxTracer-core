@@ -74,6 +74,10 @@ All methods are exported from `@tonstudio/txtracer-core` and can be used indepen
 
 All main types (transactions, blocks, messages, tracing results) are exported from `@tonstudio/txtracer-core` and are fully typed (see [src/types.ts](src/types.ts)).
 
+## Projects based on txtracer-core
+
+- [TxTracer](https://txtracer.ton.org) — Web-application for tracing and debugging any TON blockchain transactions
+
 ## License
 
 MIT © TON Studio
