@@ -1,10 +1,10 @@
 # TxTracer-core
 
-**TxTracer-core** is a core library for deep analysis, emulation, and tracing of transactions on the TON blockchain. The library allows you to reproduce transaction execution in a local sandbox, obtain detailed reports on computation, actions, and money flow, and collect low-level information about blocks, accounts, and messages.
+**TxTracer-core** is a core library for deep analysis, emulation, and tracing transactions on the TON blockchain. The library allows you to reproduce transaction execution in a local sandbox, obtain detailed reports on computation, actions, and money flow, and collect low-level information about blocks, accounts, and messages.
 
 ## Features
 
-- **Detailed transaction tracing**: Emulate transaction execution in an environment identical to the real TON blockchain.
+- **Detailed transaction tracing**: Emulate transaction execution in an environment identical to TON blockchain's mainnet.
 - **Block and account data collection**: Obtain account state snapshots, block configuration, and transaction history.
 - **Work with libraries and contracts**: Automatic loading and handling of exotic library cells.
 - **Analysis of incoming/outgoing messages, balance calculations, and VM log collection.**
@@ -43,7 +43,7 @@ import {retrace} from "@tonstudio/txtracer-core"
 const result1 = await retrace(testnet, txHash)
 
 /**
- * Retrace transaction described as triple
+ * Retrace a transaction described as triple
  */
 const result2 = await retraceBaseTx(testnet, {
     lt: 56166043000001n,
@@ -76,7 +76,7 @@ All main types (transactions, blocks, messages, tracing results) are exported fr
 
 ## Projects based on txtracer-core
 
-- [TxTracer](https://txtracer.ton.org) — Web-application for tracing and debugging any TON blockchain transactions
+- [TxTracer](https://txtracer.ton.org) — Web application for tracing and debugging any TON blockchain transactions
 
 ## License
 
