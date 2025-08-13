@@ -140,12 +140,14 @@ describe("transactions", () => {
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
         expect(res.originalCodeCell?.toBoc().toString("hex")).toMatchSnapshot()
         expect(res.inMsg.sender?.toString()).toMatchSnapshot()
+        expect("0x" + res.inMsg.opcode?.toString(16)).toMatchSnapshot()
         expect(res.inMsg.contract.toString()).toMatchSnapshot()
         expect(res.inMsg.amount).toMatchSnapshot()
         expect(res.emulatedTx.lt).toMatchSnapshot()
         expect(res.emulatedTx.utime).toMatchSnapshot()
         expect(res.emulatedTx.computeInfo).toMatchSnapshot()
         expect(res.emulatedTx.c5?.toString()).toMatchSnapshot()
+        expect(res.emulatedTx.raw).toMatchSnapshot()
         expect(res.money).toMatchSnapshot()
     }
 

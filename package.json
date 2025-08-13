@@ -1,6 +1,6 @@
 {
-    "name": "@tonstudio/txtracer-core",
-    "version": "0.1.0",
+    "name": "txtracer-core-test-dev",
+    "version": "0.1.7",
     "description": "Core TxTracer library for collecting transaction information",
     "main": "dist/index.js",
     "scripts": {
@@ -8,7 +8,8 @@
         "lint": "eslint --cache .",
         "test": "jest",
         "fmt": "prettier --write -l --cache .",
-        "fmt:check": "prettier --check --cache ."
+        "fmt:check": "prettier --check --cache .",
+        "precommit": "yarn fmt && yarn lint --fix && yarn build"
     },
     "keywords": [
         "ton",
@@ -31,13 +32,15 @@
         "!dist/test"
     ],
     "dependencies": {
-        "@ton/core": "^0.60.1",
-        "@ton/sandbox": "^0.29.0",
-        "@ton/ton": "^15.2.1",
+        "@ton-community/func-js": "^0.10.0",
+        "@ton/core": "^0.61.0",
+        "@ton/sandbox": "^0.36.0",
+        "@ton/ton": "^15.3.1",
         "axios": "^1.6.7"
     },
     "devDependencies": {
         "@ton/crypto": "^3.3.0",
+        "@ton/test-utils": "^0.10.0",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.14.0",
         "esbuild": "^0.25.2",
@@ -46,7 +49,6 @@
         "eslint-plugin-unused-imports": "^4.1.4",
         "jest": "^29.7.0",
         "prettier": "3.4.2",
-        "tact-asm": "0.0.4",
         "ts-jest": "^29.2.6",
         "typescript": "^5.7.0",
         "typescript-eslint": "^8.22.0"
