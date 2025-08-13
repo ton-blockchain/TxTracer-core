@@ -1,6 +1,6 @@
 {
     "name": "txtracer-core-test-dev",
-    "version": "0.1.7",
+    "version": "0.1.6",
     "description": "Core TxTracer library for collecting transaction information",
     "main": "dist/index.js",
     "scripts": {
