@@ -5546,9 +5546,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"txtracer-core-test-dev@workspace:.":
+"txtracer-core@workspace:.":
   version: 0.0.0-use.local
-  resolution: "txtracer-core-test-dev@workspace:."
+  resolution: "txtracer-core@workspace:."
   dependencies:
     "@ton-community/func-js": "npm:^0.10.0"
     "@ton/core": "npm:^0.61.0"
