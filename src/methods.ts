@@ -13,16 +13,16 @@ import {
 } from "@ton/core"
 import axios, {AxiosResponse} from "axios"
 import {
+    AccountFromAPI,
     Block,
     BlockInfo,
     BlocksResponse,
-    RawTransaction,
-    TraceMoneyResult,
-    TransactionData,
     ComputeInfo,
     GetLibResponse,
-    AccountFromAPI,
+    RawTransaction,
     StateFromAPI,
+    TraceMoneyResult,
+    TransactionData,
 } from "./types"
 import {TonClient, TonClient4} from "@ton/ton"
 import {EmulationResult, EmulationResultSuccess} from "@ton/sandbox/dist/executor/Executor"
@@ -218,11 +218,32 @@ export const getBlockAccount = async (
     address: Address,
     block: BlockInfo,
 ): Promise<ShardAccount> => {
-    const clientV4 = createTonClient4(testnet)
-
     const blockSeqno = block.shards[0].seqno
-    const res = await clientV4.getAccount(blockSeqno - 1, address)
-    return createShardAccountFromAPI(res.account, address)
+
+    const clientV4 = createTonClient4(testnet)
+    try {
+        const res = await clientV4.getAccount(blockSeqno - 1, address)
+        return createShardAccountFromAPI(res.account, address)
+    } catch (error: unknown) {
+        // @ton/ton testnet integration broken right now, fallback
+        console.error("Cannot get account from API", error)
+        const res = await getBlockAccountFallback(testnet, blockSeqno - 1, address)
+        return createShardAccountFromAPI(res.data.account, address)
+    }
+}
+
+async function getBlockAccountFallback(
+    testnet: boolean,
+    seqno: number,
+    address: Address,
+): Promise<
+    AxiosResponse<{
+        account: AccountFromAPI
+    }>
+> {
+    const endpoint = `https://${testnet ? "sandbox" : "mainnet"}-v4.tonhubapi.com`
+    const path = `${endpoint}/block/${seqno}/${address.toString({urlSafe: true})}`
+    return axios.get(path)
 }
 
 /**
@@ -375,13 +396,13 @@ export function createShardAccountFromAPI(
                 used: {
                     cells: toBigint(apiAccount.storageStat?.used.cells),
                     bits: toBigint(apiAccount.storageStat?.used.bits),
-                    publicCells: toBigint(apiAccount.storageStat?.used.publicCells),
                 },
                 lastPaid: apiAccount.storageStat?.lastPaid ?? 0,
                 duePayment:
                     typeof apiAccount.storageStat?.duePayment === "string"
                         ? BigInt(apiAccount.storageStat.duePayment)
                         : undefined,
+                storageExtra: null,
             },
         },
         lastTransactionLt: BigInt(apiAccount.last?.lt ?? 0),

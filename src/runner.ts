@@ -17,6 +17,7 @@ import {
     shardAccountToBase64,
 } from "./methods"
 import {Buffer} from "buffer"
+import {beginCell, storeTransaction, Transaction} from "@ton/core"
 
 /**
  * Fully reproduce (re‑trace) a TON transaction inside a local TON Sandbox
@@ -131,7 +132,7 @@ export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promi
     // and then we emulate the target transaction
     const txRes = await emulate(ourTx, shardAccountBase64)
     if (!txRes.result.success) {
-        throw new Error("Transaction failed")
+        throw new Error(`Transaction failed: ${txRes.result.error}`)
     }
 
     // extract out actions from the c5 control register
@@ -145,6 +146,8 @@ export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promi
     // check if the emulated transaction hash is equal to one from the real blockchain
     const stateUpdateHashOk = emulatedTx.stateUpdate.newHash.equals(ourTx.stateUpdate.newHash)
 
+    const opcode = txOpcode(ourTx)
+
     return {
         stateUpdateHashOk,
         codeCell: loadedCode ?? codeCell,
@@ -153,9 +156,11 @@ export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promi
             sender,
             contract,
             amount,
+            opcode,
         },
         money,
         emulatedTx: {
+            raw: beginCell().store(storeTransaction(ourTx)).endCell().toBoc().toString("hex"),
             utime: emulatedTx.now,
             lt: emulatedTx.lt,
             computeInfo,
@@ -166,4 +171,23 @@ export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promi
         },
         emulatorVersion,
     }
+}
+
+function txOpcode(transaction: Transaction): number | undefined {
+    const inMessage = transaction.inMessage
+    const isBounced = inMessage?.info.type === "internal" ? inMessage.info.bounced : false
+
+    let opcode: number | undefined = undefined
+    const slice = inMessage?.body.asSlice()
+    if (slice) {
+        if (isBounced) {
+            // skip 0xFFFF..
+            slice.loadUint(32)
+        }
+        if (slice.remainingBits >= 32) {
+            opcode = slice.loadUint(32)
+        }
+    }
+
+    return opcode
 }

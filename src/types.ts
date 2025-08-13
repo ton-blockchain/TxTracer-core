@@ -260,9 +260,17 @@ export interface TraceInMessage {
      * Undefined if the in-message is an external message
      */
     amount: bigint | undefined
+    /**
+     * Opcode of the in-message
+     */
+    opcode: number | undefined
 }
 
 export interface TraceEmulatedTx {
+    /**
+     * Raw BoC of the emulated transaction in hex format
+     */
+    raw: string
     /**
      * Unix timestamp of the emulated transaction
      */
@@ -366,6 +374,7 @@ export type StateFromAPI =
 export interface AccountFromAPI {
     balance: {
         coins: string
+        currencies: Record<string, string>
     }
     state: StateFromAPI
     last: {
@@ -378,7 +387,7 @@ export interface AccountFromAPI {
         used: {
             bits: number
             cells: number
-            publicCells: number
+            publicCells?: number | undefined
         }
     } | null
 }
