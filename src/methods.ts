@@ -122,7 +122,7 @@ export const findShardBlockForTx = async (
 ): Promise<Block | undefined> => {
     const shard = tx.block
 
-    // normalize potentially negative shart to positive one
+    // normalize potentially negative shard to positive one
     const shardInt = BigInt(shard.shard)
     const shardUint = shardInt < 0 ? shardInt + BigInt("0x10000000000000000") : shardInt
 
@@ -133,6 +133,9 @@ export const findShardBlockForTx = async (
                 workchain: shard.workchain,
                 shard: "0x" + shardUint.toString(16),
                 seqno: shard.seqno,
+            },
+            headers: {
+                "X-API-Key": TONCENTER_API_KEY,
             },
         },
     )
@@ -174,6 +177,7 @@ export const findAllTransactionsBetween = async (
     const clientV2 = new TonClient({
         endpoint: `https://${testnet ? "testnet." : ""}toncenter.com/api/v2/jsonRPC`,
         timeout: BASE_TIMEOUT,
+        apiKey: TONCENTER_API_KEY,
     })
 
     return clientV2.getTransactions(baseTx.address, {
@@ -270,7 +274,7 @@ export const computeMinLt = (tx: Transaction, address: Address, block: BlockInfo
 }
 
 /**
- * Load a library cell (T‑lib) from dton.io GraphQL by its
+ * Load a library cell (T‑lib) from toncenter or dton.io GraphQL by its
  * 256‑bit hash.
  *
  * @param testnet  Mainnet/testnet flag.
@@ -279,6 +283,26 @@ export const computeMinLt = (tx: Transaction, address: Address, block: BlockInfo
  * @throws         Error if the library is missing on the server.
  */
 export const getLibraryByHash = async (testnet: boolean, hash: string): Promise<Cell> => {
+    try {
+        return await getLibraryByHashToncenter(testnet, hash)
+    } catch (error: unknown) {
+        console.log("Cannot get library by hash from toncenter:", error)
+        console.log("Trying dton")
+
+        return getLibraryByHashDton(testnet, hash)
+    }
+}
+
+/**
+ * Load a library cell (T‑lib) from dton.io GraphQL by its
+ * 256‑bit hash.
+ *
+ * @param testnet  Mainnet/testnet flag.
+ * @param hash     Hex string of the library hash.
+ * @returns        Decoded {@link Cell} containing actual code.
+ * @throws         Error if the library is missing on the server.
+ */
+export const getLibraryByHashDton = async (testnet: boolean, hash: string): Promise<Cell> => {
     await wait(1000) // needed if we load several libs in a row
     const dtonEndpoint = `https://${testnet ? "testnet." : ""}dton.io/${DTON_API_KEY}/graphql`
     const graphqlQuery = {
@@ -296,6 +320,38 @@ export const getLibraryByHash = async (testnet: boolean, hash: string): Promise<
         console.error("Error fetching library from dton:", error)
         if (error instanceof Error) {
             throw new Error("Get library on dton's graphql: " + error.message)
+        }
+        throw error
+    }
+}
+
+/**
+ * Load a library cell (T‑lib) from toncenter by its
+ * 256‑bit hash.
+ *
+ * @param testnet  Mainnet/testnet flag.
+ * @param hash     Hex string of the library hash.
+ * @returns        Decoded {@link Cell} containing actual code.
+ * @throws         Error if the library is missing on the server.
+ */
+export const getLibraryByHashToncenter = async (testnet: boolean, hash: string): Promise<Cell> => {
+    try {
+        const endpoint = `https://${testnet ? "testnet." : ""}toncenter.com/api/v2/getLibraries`
+        const res: AxiosResponse<{
+            ok: boolean
+            result: {result: {hash: string; data: string}[]}
+        }> = await axios.get(endpoint, {
+            params: {libraries: hash},
+            headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": TONCENTER_API_KEY,
+            },
+        })
+        return Cell.fromBase64(res.data.result.result[0].data)
+    } catch (error) {
+        console.error("Error fetching library from toncenter:", error)
+        if (error instanceof Error) {
+            throw new Error("Get library on toncenter: " + error.message)
         }
         throw error
     }
