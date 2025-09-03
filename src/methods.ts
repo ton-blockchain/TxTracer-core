@@ -287,7 +287,7 @@ export const getLibraryByHash = async (testnet: boolean, hash: string): Promise<
         return await getLibraryByHashToncenter(testnet, hash)
     } catch (error: unknown) {
         console.log("Cannot get library by hash from toncenter:", error)
-        console.log("Trying dton")
+        console.log("Trying dton...")
 
         return getLibraryByHashDton(testnet, hash)
     }
