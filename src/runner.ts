@@ -77,7 +77,7 @@ export const retrace = async (
         // This can be both a simple cell underflow and failed to load a library cell.
         // Parse vmLogs to find out.
 
-        // Example stack:
+        // Example logs:
         //
         // stack: [ ... C{B5EE9C72010101010023000842029468B29F43AC803FC9F621953FDD069A432E4CD1D9A56B9C299B587FE6898FAB} ]
         // code cell hash: 4F5F4CE417F91358B532A9670A09D20AC7E01850E9B704A4DF1CC5373EE6EDE4 offset: 887
