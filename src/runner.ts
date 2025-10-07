@@ -13,11 +13,13 @@ import {
     findShardBlockForTx,
     getBlockAccount,
     getBlockConfig,
+    getLibraryByHash,
     prepareEmulator,
     shardAccountToBase64,
 } from "./methods"
 import {Buffer} from "buffer"
-import {beginCell, storeTransaction, Transaction} from "@ton/core"
+import {beginCell, Cell, storeTransaction, Transaction} from "@ton/core"
+import {logs} from "ton-assembly"
 
 /**
  * Fully reproduce (re‑trace) a TON transaction inside a local TON Sandbox
@@ -35,8 +37,9 @@ import {beginCell, storeTransaction, Transaction} from "@ton/core"
  *     calculated state‑hash with the on‑chain one and assemble a
  *     `TraceResult` object for the caller.
  *
- * @param testnet  When `true`, work against testnet endpoints; otherwise mainnet.
- * @param txLink   Hex hash that uniquely identifies the transaction to retrace.
+ * @param testnet         When `true`, work against testnet endpoints; otherwise mainnet.
+ * @param txLink          Hex hash that uniquely identifies the transaction to retrace.
+ * @param additionalLibs  Additional libraries to use.
  *
  * @returns        A {@link TraceResult} containing:
  *                 1. an integrity flag `stateUpdateHashOk`
@@ -51,12 +54,70 @@ import {beginCell, storeTransaction, Transaction} from "@ton/core"
  *                 diverges (TVM returns non‑success); or if state‑hash
  *                 mismatch is detected after replay.
  */
-export const retrace = async (testnet: boolean, txLink: string): Promise<TraceResult> => {
+export const retrace = async (
+    testnet: boolean,
+    txLink: string,
+    additionalLibs: [bigint, Cell][] = [],
+): Promise<TraceResult> => {
     const baseTx = await findBaseTxByHash(testnet, txLink)
     if (baseTx === undefined) {
         throw new Error("Cannot find transaction info")
     }
-    return retraceBaseTx(testnet, baseTx)
+    const result = await retraceBaseTx(testnet, baseTx, additionalLibs)
+    if (result.emulatedTx.computeInfo === "skipped") {
+        return result
+    }
+
+    if (result.emulatedTx.computeInfo.exitCode === 0) {
+        // fast path
+        return result
+    }
+
+    if (result.emulatedTx.computeInfo.exitCode === 9) {
+        // This can be both a simple cell underflow and failed to load a library cell.
+        // Parse vmLogs to find out.
+
+        // Example logs:
+        //
+        // stack: [ ... C{B5EE9C72010101010023000842029468B29F43AC803FC9F621953FDD069A432E4CD1D9A56B9C299B587FE6898FAB} ]
+        // code cell hash: 4F5F4CE417F91358B532A9670A09D20AC7E01850E9B704A4DF1CC5373EE6EDE4 offset: 887
+        // execute CTOS
+        // handling exception code 9: failed to load library cell
+        // default exception handler, terminating vm with exit code 9
+
+        const lines = logs.parse(result.emulatedTx.vmLogs)
+
+        const exceptionHandlerLine = lines.at(-2)
+        const exceptionLine = lines.at(-3)
+        const ctosLine = lines.at(-4)
+        const stackLine = lines.at(-6)
+        if (
+            exceptionHandlerLine?.$ === "VmExceptionHandler" &&
+            exceptionLine?.$ === "VmException" &&
+            exceptionLine.message === "failed to load library cell" &&
+            ctosLine?.$ === "VmExecute" &&
+            ctosLine.instr === "CTOS" &&
+            stackLine?.$ === "VmStack"
+        ) {
+            // So we find out that the transaction failed to load a library cell.
+            // Stack before CTOS will contain the library cell as the top element.
+            const topElement = stackLine.stack.at(-1)
+            if (topElement?.$ === "Cell") {
+                const libraryResult = await tryLoadAsLibrary(topElement.boc, testnet)
+                if (libraryResult === undefined) {
+                    // Either the library cell is not an exotic library cell, or we cannot load it.
+                    return result
+                }
+
+                // Now we have the library content and hash, so we try again with this library.
+                const {libHashHex, actualCode} = libraryResult
+                const additionalLib: [bigint, Cell] = [BigInt(`0x${libHashHex}`), actualCode]
+                return retrace(testnet, txLink, [...additionalLibs, additionalLib])
+            }
+        }
+    }
+
+    return result
 }
 
 /**
@@ -66,7 +127,11 @@ export const retrace = async (testnet: boolean, txLink: string): Promise<TraceRe
  *
  * See {@link retrace} for the full description of the workflow.
  */
-export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promise<TraceResult> => {
+export const retraceBaseTx = async (
+    testnet: boolean,
+    baseTx: BaseTxInfo,
+    additionalLibs: [bigint, Cell][] = [],
+): Promise<TraceResult> => {
     const [tx] = await findRawTxByHash(testnet, baseTx)
     // eslint bug
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -101,7 +166,12 @@ export const retraceBaseTx = async (testnet: boolean, baseTx: BaseTxInfo): Promi
     // retrieve block config to pass it to emulator
     const blockConfig = await getBlockConfig(testnet, fullBlock)
     const shardAccountBeforeTx = await getBlockAccount(testnet, baseTx.address, fullBlock)
-    const [libs, loadedCode] = await collectUsedLibraries(testnet, shardAccountBeforeTx, tx.tx)
+    const [libs, loadedCode] = await collectUsedLibraries(
+        testnet,
+        shardAccountBeforeTx,
+        tx.tx,
+        additionalLibs,
+    )
 
     // retrieve code cell if an account in active mode
     const state = shardAccountBeforeTx.account?.storage.state
@@ -190,4 +260,32 @@ function txOpcode(transaction: Transaction): number | undefined {
     }
 
     return opcode
+}
+
+/**
+ * Try to parse a given cell as a library cell and load it from the blockchain.
+ */
+async function tryLoadAsLibrary(
+    cell: string,
+    testnet: boolean,
+): Promise<
+    | {
+          libHashHex: string
+          actualCode: Cell
+      }
+    | undefined
+> {
+    const libCell = Cell.fromHex(cell)
+
+    const EXOTIC_LIBRARY_TAG = 2
+    if (libCell.bits.length !== 256 + 8) return undefined // not an exotic library cell
+
+    const cs = libCell.beginParse(true) // allow exotics
+    const tag = cs.loadUint(8)
+    if (tag !== EXOTIC_LIBRARY_TAG) return undefined // not a library cell
+
+    const libHash = cs.loadBuffer(32)
+    const libHashHex = libHash.toString("hex").toUpperCase()
+    const actualCode = await getLibraryByHash(testnet, libHashHex)
+    return {libHashHex, actualCode}
 }
