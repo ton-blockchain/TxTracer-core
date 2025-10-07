@@ -362,17 +362,19 @@ export const getLibraryByHashToncenter = async (testnet: boolean, hash: string):
  * code of the pending message, detect all **exotic library cells**
  * (tag 2) and build a dict mapping hash → real library code.
  *
- * @param testnet   Mainnet/testnet flag.
- * @param account   Current {@link ShardAccount} snapshot.
- * @param tx        Transaction whose `inMessage` may include `Init`.
- * @returns         Serialized dict cell or `undefined`
- *                  when no libraries are referenced and actual code cell if
- *                  original code is just an exotic library cell
+ * @param testnet          Mainnet/testnet flag.
+ * @param account          Current {@link ShardAccount} snapshot.
+ * @param additionalLibs   Additional libraries to use.
+ * @param tx               Transaction whose `inMessage` may include `Init`.
+ * @returns                Serialized dict cell or `undefined`
+ *                         when no libraries are referenced and actual code cell if
+ *                         original code is just an exotic library cell
  */
 export const collectUsedLibraries = async (
     testnet: boolean,
     account: ShardAccount,
     tx: Transaction,
+    additionalLibs: [bigint, Cell][],
 ): Promise<[Cell | undefined, Cell | undefined]> => {
     const libs = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell())
 
@@ -414,6 +416,10 @@ export const collectUsedLibraries = async (
         // well, otherwise the sandbox would fail to resolve a library
         // during emulation.
         loadedCellCode ??= await addMaybeExoticLibrary(init.code ?? undefined)
+    }
+
+    for (const [hash, lib] of additionalLibs) {
+        libs.set(hash, lib)
     }
 
     // no libs found, return undefined, for emulator this means no libraries

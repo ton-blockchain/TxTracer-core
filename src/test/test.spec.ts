@@ -118,6 +118,18 @@ describe("transactions", () => {
         DEFAULT_TIMEOUT,
     )
 
+    it(
+        "should return correct information for transaction with library load from mainnet",
+        async () => {
+            const txLink = "a63b8b2f4b4493de5e67031ba3d65c7a8c0938ab56327608fb42bcbee901e4b7"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
     function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
