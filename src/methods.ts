@@ -683,9 +683,14 @@ export const findFinalActions = (res: EmulationResultSuccess) => {
         return {finalActions: [], c5: undefined}
     }
 
-    const c5 = Cell.fromBase64(actions)
-    const finalActions = loadOutList(c5.asSlice())
-    return {finalActions, c5}
+    try {
+        const c5 = Cell.fromBase64(actions)
+        const finalActions = loadOutList(c5.asSlice())
+        return {finalActions, c5}
+    } catch (error) {
+        console.error(`Error decoding actions ${actions}:`, error)
+        return {finalActions: [], c5: undefined}
+    }
 }
 
 /**
