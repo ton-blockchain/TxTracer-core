@@ -1117,17 +1117,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ton/core@npm:^0.60.1":
-  version: 0.60.1
-  resolution: "@ton/core@npm:0.60.1"
-  dependencies:
-    symbol.inspect: "npm:1.0.1"
-  peerDependencies:
-    "@ton/crypto": ">=3.2.0"
-  checksum: 10c0/aa2181cb1b7db85ce651f5d31b552858e2e6b98bb69803fc384a7e62b6a9cb4685f6e9f6f00a29bddfa872486ba7c2eb9e51fc84a8599b253c1649b2802876be
-  languageName: node
-  linkType: hard
-
 "@ton/core@npm:^0.61.0":
   version: 0.61.0
   resolution: "@ton/core@npm:0.61.0"
@@ -1159,27 +1148,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ton/sandbox@npm:^0.36.0":
-  version: 0.36.0
-  resolution: "@ton/sandbox@npm:0.36.0"
+"@ton/sandbox@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@ton/sandbox@npm:0.39.0"
   dependencies:
     "@vscode/debugadapter": "npm:^1.68.0"
     chalk: "npm:^4.1.2"
     fflate: "npm:^0.8.2"
     table: "npm:^6.9.0"
-    ton-assembly: "npm:0.1.0"
+    ton-assembly: "npm:0.1.2"
   peerDependencies:
     "@ton-community/func-js": ">=0.10.0"
     "@ton/core": ">=0.61.0"
     "@ton/crypto": ">=3.3.0"
     "@ton/test-utils": ">=0.7.0"
-    jest: ^29.5.0
+    jest: ^29.5.0 || ^30.0.5
   peerDependenciesMeta:
     "@ton/test-utils":
       optional: true
     jest:
       optional: true
-  checksum: 10c0/66270e89188a390d82dbbcf4cc4b493945476cc44c39bb15abf31d66f81f7a2084e8fb2ec14447f6ed3c62871d0f60efecafe3c53f37b1d89b6810e424cc0e0a
+  checksum: 10c0/10566a559ff55c1806388c0c3299261447e8a56f4a1c17c493ee29c2e839a2a216e464509150126048bde41d1ada84460583ee28eea009daf511f05c539c6b8a
   languageName: node
   linkType: hard
 
@@ -5477,19 +5466,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ton-assembly@npm:0.1.0":
-  version: 0.1.0
-  resolution: "ton-assembly@npm:0.1.0"
+"ton-assembly@npm:0.1.2":
+  version: 0.1.2
+  resolution: "ton-assembly@npm:0.1.2"
   dependencies:
-    "@ton/core": "npm:^0.60.1"
     "@tonstudio/parser-runtime": "npm:^0.0.1"
     cac: "npm:^6.7.14"
   peerDependencies:
-    "@ton/core": ">=0.60.1"
+    "@ton/core": ">=0.61.0"
   bin:
     tasm: dist/cli/assembler.js
     tdisasm: dist/cli/disassembler.js
-  checksum: 10c0/5880376d14f45394e959446f7f50352f1796b80a390b4c6ecd502251a2495ce2565fcc0a7522764eb626821f1ba568065a27cf5179629cf52b485319df3acad1
+  checksum: 10c0/f0c8bc73d157bf04d2eb2c1611e19c67d570bc035c5b089b43e4f5862926e26b46e08d8e855a2c2c8ae85dec31af21444c3b0438feea4cd323db455f609f9e86
   languageName: node
   linkType: hard
 
@@ -5554,7 +5542,7 @@ __metadata:
     "@ton-community/func-js": "npm:^0.10.0"
     "@ton/core": "npm:^0.61.0"
     "@ton/crypto": "npm:^3.3.0"
-    "@ton/sandbox": "npm:^0.36.0"
+    "@ton/sandbox": "npm:^0.39.0"
     "@ton/test-utils": "npm:^0.10.0"
     "@ton/ton": "npm:^15.3.1"
     "@types/jest": "npm:^29.5.14"
