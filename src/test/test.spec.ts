@@ -129,34 +129,34 @@ describe("transactions", () => {
         },
         DEFAULT_TIMEOUT,
     )
-
-    describe("TVM version support", () => {
-        it(
-            "TVM version v12",
-            async () => {
-                const txLink = "fadd5a2d53a26c4e8694e9e992c4f53f981655593b24847f19727c1140a255be"
-                const testnet = true
-
-                const res = await retrace(testnet, txLink)
-                checkResult(res)
-            },
-            DEFAULT_TIMEOUT,
-        )
-    })
-
-    function checkResult(res: TraceResult, expectedOk: boolean = true): void {
-        expect(res.stateUpdateHashOk).toEqual(expectedOk)
-        expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
-        expect(res.originalCodeCell?.toBoc().toString("hex")).toMatchSnapshot()
-        expect(res.inMsg.sender?.toString()).toMatchSnapshot()
-        expect("0x" + res.inMsg.opcode?.toString(16)).toMatchSnapshot()
-        expect(res.inMsg.contract.toString()).toMatchSnapshot()
-        expect(res.inMsg.amount).toMatchSnapshot()
-        expect(res.emulatedTx.lt).toMatchSnapshot()
-        expect(res.emulatedTx.utime).toMatchSnapshot()
-        expect(res.emulatedTx.computeInfo).toMatchSnapshot()
-        expect(res.emulatedTx.c5?.toString()).toMatchSnapshot()
-        expect(res.emulatedTx.raw).toMatchSnapshot()
-        expect(res.money).toMatchSnapshot()
-    }
 })
+
+describe("TVM version support", () => {
+    it(
+        "v12",
+        async () => {
+            const txLink = "fadd5a2d53a26c4e8694e9e992c4f53f981655593b24847f19727c1140a255be"
+            const testnet = true
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+})
+
+function checkResult(res: TraceResult, expectedOk: boolean = true): void {
+    expect(res.stateUpdateHashOk).toEqual(expectedOk)
+    expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
+    expect(res.originalCodeCell?.toBoc().toString("hex")).toMatchSnapshot()
+    expect(res.inMsg.sender?.toString()).toMatchSnapshot()
+    expect("0x" + res.inMsg.opcode?.toString(16)).toMatchSnapshot()
+    expect(res.inMsg.contract.toString()).toMatchSnapshot()
+    expect(res.inMsg.amount).toMatchSnapshot()
+    expect(res.emulatedTx.lt).toMatchSnapshot()
+    expect(res.emulatedTx.utime).toMatchSnapshot()
+    expect(res.emulatedTx.computeInfo).toMatchSnapshot()
+    expect(res.emulatedTx.c5?.toString()).toMatchSnapshot()
+    expect(res.emulatedTx.raw).toMatchSnapshot()
+    expect(res.money).toMatchSnapshot()
+}
