@@ -130,6 +130,20 @@ describe("transactions", () => {
         DEFAULT_TIMEOUT,
     )
 
+    describe("TVM version support", () => {
+        it(
+            "TVM version v12",
+            async () => {
+                const txLink = "fadd5a2d53a26c4e8694e9e992c4f53f981655593b24847f19727c1140a255be"
+                const testnet = true
+
+                const res = await retrace(testnet, txLink)
+                checkResult(res)
+            },
+            DEFAULT_TIMEOUT,
+        )
+    })
+
     function checkResult(res: TraceResult, expectedOk: boolean = true): void {
         expect(res.stateUpdateHashOk).toEqual(expectedOk)
         expect(res.codeCell?.toBoc().toString("hex")).toMatchSnapshot()
