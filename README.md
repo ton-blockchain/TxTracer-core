@@ -13,15 +13,15 @@
 ## Installation
 
 ```bash
-yarn add @tonstudio/txtracer-core
+yarn add txtracer-core
 # or
-npm install @tonstudio/txtracer-core
+npm install txtracer-core
 ```
 
 ## Quick Start
 
 ```ts
-import {retrace} from "@tonstudio/txtracer-core"
+import {retrace} from "txtracer-core"
 
 // Example: trace a transaction by its hash
 const result = await retrace(false, "YOUR_TX_HASH")
@@ -33,7 +33,7 @@ console.log(result)
 ### Transaction Tracing
 
 ```ts
-import {retrace} from "@tonstudio/txtracer-core"
+import {retrace} from "txtracer-core"
 
 /**
  * @param testnet - true for testnet, false for mainnet
@@ -54,7 +54,7 @@ const result2 = await retraceBaseTx(testnet, {
 
 ### Helper Methods
 
-All methods are exported from `@tonstudio/txtracer-core` and can be used independently:
+All methods are exported from `txtracer-core` and can be used independently:
 
 - **findBaseTxByHash(testnet, txHash)** — Find base transaction info by hash.
 - **findRawTxByHash(testnet, baseTxInfo)** — Get full transaction details.
@@ -72,7 +72,7 @@ All methods are exported from `@tonstudio/txtracer-core` and can be used indepen
 
 ## Types
 
-All main types (transactions, blocks, messages, tracing results) are exported from `@tonstudio/txtracer-core` and are fully typed (see [src/types.ts](src/types.ts)).
+All main types (transactions, blocks, messages, tracing results) are exported from `txtracer-core` and are fully typed (see [src/types.ts](src/types.ts)).
 
 ## Projects based on txtracer-core
 
@@ -80,9 +80,9 @@ All main types (transactions, blocks, messages, tracing results) are exported fr
 
 ## License
 
-MIT © TON Studio
+MIT © TON Studio, TON Core
 
 ## Links
 
 - [TON Documentation](https://ton.org/docs/)
-- [Source code & issue tracker](https://github.com/tact-lang/txtracer-core)
+- [Source code & issue tracker](https://github.com/ton-blockchain/TxTracer-core)
