@@ -17,15 +17,7 @@ export default tseslint.config(
 
     // add files and folders to be ignored
     {
-        ignores: [
-            "**/*.js",
-            "eslint.config.mjs",
-            "vitest.config.ts",
-            ".github/*",
-            ".yarn/*",
-            "src/utils.ts",
-            "dist/*",
-        ],
+        ignores: ["**/*.js", "eslint.config.mjs", ".github/*", ".yarn/*", "src/utils.ts", "dist/*"],
     },
 
     tseslint.configs.all,
@@ -34,7 +26,7 @@ export default tseslint.config(
     {
         languageOptions: {
             parserOptions: {
-                projectService: true,
+                project: ["tsconfig.eslint.json"],
                 tsconfigRootDir: __dirname,
             },
         },
