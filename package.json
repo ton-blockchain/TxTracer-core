@@ -6,7 +6,7 @@
     "scripts": {
         "build": "tsc --declaration",
         "lint": "eslint --cache .",
-        "test": "jest",
+        "test": "vitest run",
         "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
         "precommit": "yarn fmt && yarn lint --fix && yarn build"
@@ -41,17 +41,15 @@
     "devDependencies": {
         "@ton/crypto": "^3.3.0",
         "@ton/test-utils": "^0.10.0",
-        "@types/jest": "^29.5.14",
         "@types/node": "^22.14.0",
         "esbuild": "^0.25.2",
         "eslint": "^9.19.0",
         "eslint-plugin-unicorn": "^56.0.1",
         "eslint-plugin-unused-imports": "^4.1.4",
-        "jest": "^29.7.0",
         "prettier": "3.4.2",
-        "ts-jest": "^29.2.6",
         "typescript": "^5.7.0",
-        "typescript-eslint": "^8.22.0"
+        "typescript-eslint": "^8.22.0",
+        "vitest": "^4.0.18"
     },
     "packageManager": "yarn@4.6.0",
     "prettier": {
