@@ -1,3 +1,4 @@
+import {describe, expect, it} from "vitest"
 import {retrace, retraceBaseTx} from "../runner"
 import {TraceResult} from "../types"
 import {Buffer} from "buffer"
