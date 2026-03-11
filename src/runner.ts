@@ -180,7 +180,18 @@ export const retraceBaseTx = async (
             ? (state.state.code ?? undefined)
             : (tx.tx.inMessage?.init?.code ?? undefined)
 
-    const {emulatorVersion, emulate} = await prepareEmulator(blockConfig, libs, randSeed)
+    // for tick-tock transactions, mark the account as special in its StateInit
+    // the API doesn't return this field, but the emulator needs it for correct state hashing
+    if (ourTx.description.type === "tick-tock" && state?.type === "active") {
+        const isTock = ourTx.description.isTock
+        state.state.special = {tick: !isTock, tock: isTock}
+    }
+
+    const {emulatorVersion, emulate, emulateTickTock} = await prepareEmulator(
+        blockConfig,
+        libs,
+        randSeed,
+    )
 
     // for the first transaction (executor doesn't know about last tx)
     shardAccountBeforeTx.lastTransactionLt = 0n
@@ -192,15 +203,24 @@ export const retraceBaseTx = async (
     // first we emulate all transactions before to get a state that is equal to actual
     // state in blockchain before transaction to emulate
     const balance = shardAccountBeforeTx.account?.storage.balance.coins ?? 0n
+    // wrapper that dispatches to emulate or emulateTickTock depending on tx type
+    const emulateAny = async (tx: Transaction, sa: string) => {
+        if (tx.description.type === "tick-tock") {
+            const which = tx.description.isTock ? "tock" : "tick"
+            return emulateTickTock(which, tx, sa)
+        }
+        return emulate(tx, sa)
+    }
+
     const {prevBalance, shardAccountBase64} = await emulatePreviousTransactions(
         balance,
         prevTxsInBlock,
-        emulate,
+        emulateAny,
         initialShardAccountBase64,
     )
 
     // and then we emulate the target transaction
-    const txRes = await emulate(ourTx, shardAccountBase64)
+    const txRes = await emulateAny(ourTx, shardAccountBase64)
     if (!txRes.result.success) {
         throw new Error(`Transaction failed: ${txRes.result.error}`)
     }
@@ -211,6 +231,7 @@ export const retraceBaseTx = async (
     const {sender, contract, amount, money, emulatedTx, computeInfo} = computeFinalData(
         txRes.result,
         prevBalance,
+        baseTx.address,
     )
 
     // check if the emulated transaction hash is equal to one from the real blockchain
