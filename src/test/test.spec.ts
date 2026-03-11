@@ -132,6 +132,34 @@ describe("transactions", () => {
     )
 })
 
+describe("tick-tock transactions", () => {
+    it(
+        "should return correct information for tick transaction on elector",
+        async () => {
+            const txLink = "0c0bb916b6297b75a3fed6dd95d5126bdd293e8e066918482a31238ebba2dc62"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
+        "should handle genesis block tick-tock transaction on elector (block 1)",
+        async () => {
+            // First tick-tock transaction on the elector in block 1 (genesis)
+            const txLink = "31a7668dad7b8a2c2d0e5290e5a0aef69f746f12c405eea133895fe70e063185"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            // Genesis block state is not available via APIs, so stateUpdateHashOk will be false
+            checkResult(res, false)
+        },
+        DEFAULT_TIMEOUT,
+    )
+})
+
 describe("TVM version support", () => {
     it(
         "v12",

@@ -25,7 +25,11 @@ import {
     TransactionData,
 } from "./types"
 import {TonClient, TonClient4} from "@ton/ton"
-import {EmulationResult, EmulationResultSuccess} from "@ton/sandbox/dist/executor/Executor"
+import {
+    EmulationResult,
+    EmulationResultSuccess,
+    TickOrTock,
+} from "@ton/sandbox/dist/executor/Executor"
 import {Blockchain, Executor} from "@ton/sandbox"
 import {base64ToBigint, wait} from "./utils"
 import {AccountState as CoreAccountState} from "@ton/core/dist/types/AccountState"
@@ -231,8 +235,27 @@ export const getBlockAccount = async (
     } catch (error: unknown) {
         // @ton/ton testnet integration broken right now, fallback
         console.error("Cannot get account from API", error)
-        const res = await getBlockAccountFallback(testnet, blockSeqno - 1, address)
-        return createShardAccountFromAPI(res.data.account, address)
+        try {
+            const res = await getBlockAccountFallback(testnet, blockSeqno - 1, address)
+            return createShardAccountFromAPI(res.data.account, address)
+        } catch (fallbackError: unknown) {
+            // Genesis block (seqno 0) is not available via any API.
+            // Fall back to the current block's state as best approximation.
+            // stateUpdateHashOk will be false for genesis transactions.
+            if (blockSeqno - 1 <= 0) {
+                console.warn(
+                    `Cannot get genesis state for ${address.toString()}, falling back to block ${blockSeqno}`,
+                )
+                try {
+                    const res = await clientV4.getAccount(blockSeqno, address)
+                    return createShardAccountFromAPI(res.account, address)
+                } catch {
+                    const res = await getBlockAccountFallback(testnet, blockSeqno, address)
+                    return createShardAccountFromAPI(res.data.account, address)
+                }
+            }
+            throw fallbackError
+        }
     }
 }
 
@@ -590,7 +613,26 @@ export const prepareEmulator = async (
         })
     }
 
-    return {emulatorVersion, emulate}
+    async function emulateTickTock(
+        which: TickOrTock,
+        tx: Transaction,
+        shardAccountBase64: string,
+    ): Promise<EmulationResult> {
+        return executor.runTickTock({
+            config: blockConfig,
+            libs: libs ?? null,
+            verbosity: "full_location_stack_verbose",
+            shardAccount: shardAccountBase64,
+            which,
+            now: tx.now,
+            lt: tx.lt,
+            randomSeed: randSeed,
+            ignoreChksig: false,
+            debugEnabled: true,
+        })
+    }
+
+    return {emulatorVersion, emulate, emulateTickTock}
 }
 
 /**
@@ -603,54 +645,72 @@ export const prepareEmulator = async (
  * @returns              Breakdown containing sender/dest, amounts,
  *                       gas usage and the parsed `emulatedTx`.
  */
-export const computeFinalData = (res: EmulationResultSuccess, balanceBefore: bigint) => {
+export const computeFinalData = (
+    res: EmulationResultSuccess,
+    balanceBefore: bigint,
+    contractAddress?: Address,
+) => {
     const shardAccount = loadShardAccount(Cell.fromBase64(res.shardAccount).asSlice())
     const endBalance = shardAccount.account?.storage.balance.coins ?? 0n
 
     const emulatedTx = loadTransaction(Cell.fromBase64(res.transaction).asSlice())
-    if (!emulatedTx.inMessage) {
-        throw new Error("No in_message was found in result tx")
+
+    let src: Address | undefined = undefined
+    let dest: Address | undefined = undefined
+    let amount: bigint | undefined = undefined
+
+    if (emulatedTx.inMessage) {
+        const msgSrc = emulatedTx.inMessage.info.src ?? undefined
+        const msgDest = emulatedTx.inMessage.info.dest
+
+        if (msgSrc !== undefined && !Address.isAddress(msgSrc)) {
+            throw new Error(`Invalid src address: ${String(msgSrc)}`)
+        }
+        if (!Address.isAddress(msgDest)) {
+            throw new Error(`Invalid dest address: ${String(msgDest)}`)
+        }
+
+        src = msgSrc
+        dest = msgDest
+
+        amount =
+            emulatedTx.inMessage.info.type === "internal"
+                ? emulatedTx.inMessage.info.value.coins
+                : undefined
+    } else if (contractAddress) {
+        dest = contractAddress
     }
 
-    const src = emulatedTx.inMessage.info.src ?? undefined
-    const dest = emulatedTx.inMessage.info.dest
-
-    if (src !== undefined && !Address.isAddress(src)) {
-        throw new Error(`Invalid src address: ${src.toString()}`)
+    if (!dest) {
+        throw new Error("Cannot determine contract address")
     }
-    if (!Address.isAddress(dest)) {
-        throw new Error(`Invalid dest address: ${dest?.toString()}`)
-    }
-
-    const amount =
-        emulatedTx.inMessage.info.type === "internal"
-            ? emulatedTx.inMessage.info.value.coins
-            : undefined
 
     const sentTotal = calculateSentTotal(emulatedTx)
     const totalFees = emulatedTx.totalFees.coins
 
-    if (emulatedTx.description.type !== "generic") {
+    let computeInfo: ComputeInfo
+    const desc = emulatedTx.description
+    if (desc.type === "generic" || desc.type === "tick-tock") {
+        const computePhase = desc.computePhase
+        computeInfo =
+            computePhase.type === "skipped"
+                ? "skipped"
+                : {
+                      success: computePhase.success,
+                      exitCode:
+                          computePhase.exitCode === 0
+                              ? (desc.actionPhase?.resultCode ?? 0)
+                              : computePhase.exitCode,
+                      vmSteps: computePhase.vmSteps,
+                      gasUsed: computePhase.gasUsed,
+                      gasFees: computePhase.gasFees,
+                  }
+    } else {
         throw new Error(
-            "TxTracer doesn't support non-generic transaction. Given type: " +
+            "TxTracer doesn't support this transaction type. Given type: " +
                 emulatedTx.description.type,
         )
     }
-
-    const computePhase = emulatedTx.description.computePhase
-    const computeInfo: ComputeInfo =
-        computePhase.type === "skipped"
-            ? "skipped"
-            : {
-                  success: computePhase.success,
-                  exitCode:
-                      computePhase.exitCode === 0
-                          ? (emulatedTx.description.actionPhase?.resultCode ?? 0)
-                          : computePhase.exitCode,
-                  vmSteps: computePhase.vmSteps,
-                  gasUsed: computePhase.gasUsed,
-                  gasFees: computePhase.gasFees,
-              }
 
     const money: TraceMoneyResult = {
         balanceBefore,
