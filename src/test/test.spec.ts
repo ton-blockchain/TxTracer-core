@@ -56,14 +56,16 @@ describe("transactions", () => {
     )
 
     it(
-        "should return correct information for transaction with external-in message for wallet v5 that txtracer cannot fully recreate",
+        "should return correct information for transaction with external-in message for wallet v5",
         async () => {
             const txLink = "d6b814f76ec8cae17664ceba18b978e510f2249b36a35bf7227db121c1516e96"
             const testnet = false
 
-            // wrong totalFee, likely bug in the sandbox
+            // previously diverged because the re-serialized external-in
+            // message didn't match the on-chain cell; fixed by emulating
+            // with the raw in-message cell
             const res = await retrace(testnet, txLink)
-            checkResult(res, false)
+            checkResult(res)
         },
         DEFAULT_TIMEOUT,
     )

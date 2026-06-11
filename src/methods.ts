@@ -599,13 +599,15 @@ export const prepareEmulator = async (
     async function emulate(tx: Transaction, shardAccountBase64: string): Promise<EmulationResult> {
         const inMsg = tx.inMessage
         if (!inMsg) throw new Error("No in_message was found in transaction")
+        const messageCell =
+            extractRawInMessageCell(tx) ?? beginCell().store(storeMessage(inMsg)).endCell()
 
         return executor.runTransaction({
             config: blockConfig,
             libs: libs ?? null,
             verbosity: "full_location_stack_verbose",
             shardAccount: shardAccountBase64,
-            message: beginCell().store(storeMessage(inMsg)).endCell(),
+            message: messageCell,
             now: tx.now,
             lt: tx.lt,
             randomSeed: randSeed,
@@ -634,6 +636,36 @@ export const prepareEmulator = async (
     }
 
     return {emulatorVersion, emulate, emulateTickTock}
+}
+
+/**
+ * Extract the original in-message cell from the raw transaction BoC.
+ * Re-serializing the parsed message with `storeMessage` does not
+ * always reproduce the on-chain cell bit for bit (e.g. for some
+ * external-in messages), which changes forward fees and diverges the
+ * emulated state, so the raw cell is preferred when available.
+ */
+function extractRawInMessageCell(tx: Transaction): Cell | null {
+    try {
+        const s = tx.raw.beginParse()
+        s.loadUint(4) // transaction tag
+        s.loadBuffer(32) // account_addr
+        s.loadUintBig(64) // lt
+        s.loadBuffer(32) // prev_trans_hash
+        s.loadUintBig(64) // prev_trans_lt
+        s.loadUint(32) // now
+        s.loadUint(15) // outmsg_cnt
+        s.loadUint(2) // orig_status
+        s.loadUint(2) // end_status
+        const inOut = s.loadRef().beginParse() // ^[ in_msg out_msgs ]
+        const hasInMessage = inOut.loadBit()
+        if (!hasInMessage) {
+            return null
+        }
+        return inOut.loadRef()
+    } catch {
+        return null
+    }
 }
 
 /**
