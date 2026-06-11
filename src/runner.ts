@@ -4,6 +4,7 @@ import {
     collectUsedLibraries,
     computeFinalData,
     computeMinLt,
+    detectPrevBlocksUsage,
     emulatePreviousTransactions,
     findAllTransactionsBetween,
     findBaseTxByHash,
@@ -14,11 +15,13 @@ import {
     getBlockAccount,
     getBlockConfig,
     getLibraryByHash,
+    getPrevBlocksInfo,
     prepareEmulator,
     shardAccountToBase64,
 } from "./methods"
 import {Buffer} from "buffer"
-import {beginCell, Cell, storeTransaction, Transaction} from "@ton/core"
+import {beginCell, Cell, loadTransaction, storeTransaction, Transaction} from "@ton/core"
+import {PrevBlocksInfo} from "@ton/sandbox/dist/executor/Executor"
 import {logs} from "ton-assembly"
 
 /**
@@ -187,55 +190,103 @@ export const retraceBaseTx = async (
         state.state.special = {tick: !isTock, tock: isTock}
     }
 
-    const {emulatorVersion, emulate, emulateTickTock} = await prepareEmulator(
-        blockConfig,
-        libs,
-        randSeed,
-    )
-
     // for the first transaction (executor doesn't know about last tx)
     shardAccountBeforeTx.lastTransactionLt = 0n
     shardAccountBeforeTx.lastTransactionHash = 0n
 
     // emulator accepts and returns a shard account in base64 string, so prepare it for sending
     const initialShardAccountBase64 = shardAccountToBase64(shardAccountBeforeTx)
-
-    // first we emulate all transactions before to get a state that is equal to actual
-    // state in blockchain before transaction to emulate
     const balance = shardAccountBeforeTx.account?.storage.balance.coins ?? 0n
-    // wrapper that dispatches to emulate or emulateTickTock depending on tx type
-    const emulateAny = async (tx: Transaction, sa: string) => {
-        if (tx.description.type === "tick-tock") {
-            const which = tx.description.isTock ? "tock" : "tick"
-            return emulateTickTock(which, tx, sa)
+
+    // on fetch failure (e.g. genesis blocks are not available via API)
+    // emulate without prev_blocks_info, as before
+    const fetchPrevBlocksInfo = async (with100: boolean): Promise<PrevBlocksInfo | undefined> =>
+        getPrevBlocksInfo(testnet, mcSeqno, {with100}).catch((error: unknown) => {
+            console.error("Cannot get prev blocks info", error)
+            return undefined
+        })
+
+    const runEmulation = async (prevBlocksInfo?: PrevBlocksInfo) => {
+        const {emulatorVersion, emulate, emulateTickTock} = await prepareEmulator(
+            blockConfig,
+            libs,
+            randSeed,
+            prevBlocksInfo,
+        )
+
+        // wrapper that dispatches to emulate or emulateTickTock depending on tx type
+        const emulateAny = async (tx: Transaction, sa: string) => {
+            if (tx.description.type === "tick-tock") {
+                const which = tx.description.isTock ? "tock" : "tick"
+                return emulateTickTock(which, tx, sa)
+            }
+            return emulate(tx, sa)
         }
-        return emulate(tx, sa)
+
+        // first we emulate all transactions before to get a state that is equal to actual
+        // state in blockchain before transaction to emulate
+        const {prevBalance, shardAccountBase64} = await emulatePreviousTransactions(
+            balance,
+            prevTxsInBlock,
+            emulateAny,
+            initialShardAccountBase64,
+        )
+
+        // and then we emulate the target transaction
+        const txRes = await emulateAny(ourTx, shardAccountBase64)
+        if (!txRes.result.success) {
+            throw new Error(`Transaction failed: ${txRes.result.error}`)
+        }
+
+        // check if the emulated transaction hash is equal to one from the real blockchain
+        const emulated = loadTransaction(Cell.fromBase64(txRes.result.transaction).asSlice())
+        const stateUpdateHashOk = emulated.stateUpdate.newHash.equals(ourTx.stateUpdate.newHash)
+
+        return {
+            emulatorVersion,
+            logs: txRes.logs,
+            result: txRes.result,
+            prevBalance,
+            stateUpdateHashOk,
+        }
     }
 
-    const {prevBalance, shardAccountBase64} = await emulatePreviousTransactions(
-        balance,
-        prevTxsInBlock,
-        emulateAny,
-        initialShardAccountBase64,
-    )
+    // prev_blocks_info costs a couple of dozen toncenter requests,
+    // so fetch it only when the code actually reads it
+    const prevBlocksUsage = detectPrevBlocksUsage([codeCell, loadedCode])
+    const prevBlocksInfo = prevBlocksUsage.needed
+        ? await fetchPrevBlocksInfo(prevBlocksUsage.with100)
+        : undefined
 
-    // and then we emulate the target transaction
-    const txRes = await emulateAny(ourTx, shardAccountBase64)
-    if (!txRes.result.success) {
-        throw new Error(`Transaction failed: ${txRes.result.error}`)
+    let emulation = await runEmulation(prevBlocksInfo)
+
+    // the detection above is static and cannot see dynamically composed
+    // code (e.g. a continuation built from data or a message body), so
+    // when the state diverged without the full prev_blocks_info, retry
+    // once with everything fetched
+    if (!emulation.stateUpdateHashOk && prevBlocksInfo?.lastMcBlocks100 === undefined) {
+        const fullPrevBlocksInfo = await fetchPrevBlocksInfo(true)
+        if (fullPrevBlocksInfo !== undefined) {
+            emulation = await runEmulation(fullPrevBlocksInfo)
+        }
     }
+
+    const {
+        emulatorVersion,
+        prevBalance,
+        stateUpdateHashOk,
+        result: emulationResult,
+        logs: executorLogs,
+    } = emulation
 
     // extract out actions from the c5 control register
-    const {finalActions, c5} = findFinalActions(txRes.result)
+    const {finalActions, c5} = findFinalActions(emulationResult)
 
     const {sender, contract, amount, money, emulatedTx, computeInfo} = computeFinalData(
-        txRes.result,
+        emulationResult,
         prevBalance,
         baseTx.address,
     )
-
-    // check if the emulated transaction hash is equal to one from the real blockchain
-    const stateUpdateHashOk = emulatedTx.stateUpdate.newHash.equals(ourTx.stateUpdate.newHash)
 
     const opcode = txOpcode(ourTx)
 
@@ -255,10 +306,10 @@ export const retraceBaseTx = async (
             utime: emulatedTx.now,
             lt: emulatedTx.lt,
             computeInfo,
-            executorLogs: txRes.logs,
+            executorLogs,
             actions: finalActions,
             c5: c5,
-            vmLogs: txRes.result.vmLog,
+            vmLogs: emulationResult.vmLog,
         },
         emulatorVersion,
     }
