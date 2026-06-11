@@ -32,6 +32,18 @@ describe("transactions", () => {
     )
 
     it(
+        "should return correct information for transaction on account with storage_extra and code with PREVMCBLOCKS",
+        async () => {
+            const txLink = "dfee011f44a906e28ba43f5c6f1027d57573f7dc929fa81fa6544c8013248b41"
+            const testnet = false
+
+            const res = await retrace(testnet, txLink)
+            checkResult(res)
+        },
+        DEFAULT_TIMEOUT,
+    )
+
+    it(
         "should return correct information for transaction for code with single exotic library cell",
         async () => {
             const txLink = "4295a2c06ca9b0242d4b6638e4eb1a8da91a9d75dbeae4acc13a4355a4dd7a6a"

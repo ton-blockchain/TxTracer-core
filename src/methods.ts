@@ -26,11 +26,14 @@ import {
 } from "./types"
 import {TonClient, TonClient4} from "@ton/ton"
 import {
+    BlockId,
     EmulationResult,
     EmulationResultSuccess,
+    PrevBlocksInfo,
     TickOrTock,
 } from "@ton/sandbox/dist/executor/Executor"
 import {Blockchain, Executor} from "@ton/sandbox"
+import {runtime} from "ton-assembly"
 import {base64ToBigint, wait} from "./utils"
 import {AccountState as CoreAccountState} from "@ton/core/dist/types/AccountState"
 
@@ -209,6 +212,200 @@ export const getBlockConfig = async (testnet: boolean, block: BlockInfo): Promis
     const blockSeqno = block.shards[0].seqno
     const res = await clientV4.getConfig(blockSeqno)
     return res.config.cell
+}
+
+const MASTERCHAIN_SHARD = -(1n << 63n)
+const MASTERCHAIN_SHARD_HEX = "8000000000000000"
+const LAST_MC_BLOCKS_COUNT = 16
+
+export interface PrevBlocksUsage {
+    needed: boolean
+    with100: boolean
+}
+
+/**
+ * Detect whether the given code reads prev_blocks_info from c7 by
+ * disassembling it and looking for the PREVBLOCKSINFOTUPLE,
+ * PREVMCBLOCKS, PREVKEYBLOCK and PREVMCBLOCKS_100 instructions.
+ *
+ * Used to skip the relatively expensive prev-blocks fetch (a couple of
+ * dozen toncenter requests) for the vast majority of contracts that
+ * never touch it.
+ */
+export const detectPrevBlocksUsage = (roots: (Cell | undefined)[]): PrevBlocksUsage => {
+    const found: Set<string> = new Set()
+    for (const root of roots) {
+        if (!root) {
+            continue
+        }
+        try {
+            collectInstructionNames(runtime.decompileCell(root), found)
+        } catch {
+            // not disassemblable — assume it does not use prev_blocks_info
+        }
+    }
+
+    const with100 = found.has("PREVMCBLOCKS_100") || found.has("PREVBLOCKSINFOTUPLE")
+    const needed = with100 || found.has("PREVMCBLOCKS") || found.has("PREVKEYBLOCK")
+    return {needed, with100}
+}
+
+/**
+ * Recursively collect the `$` discriminators of decompiled
+ * instructions, including ones nested in continuations and method
+ * dictionaries.
+ */
+function collectInstructionNames(value: unknown, found: Set<string>): void {
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            collectInstructionNames(item, found)
+        }
+        return
+    }
+    if (
+        value === null ||
+        typeof value !== "object" ||
+        value instanceof Cell ||
+        Buffer.isBuffer(value)
+    ) {
+        return
+    }
+
+    const name = (value as {$?: unknown}).$
+    if (typeof name === "string") {
+        found.add(name)
+    }
+    for (const item of Object.values(value)) {
+        collectInstructionNames(item, found)
+    }
+}
+
+/**
+ * Collect prev_blocks_info for the TVM c7 context: the last 16
+ * masterchain blocks (ending with the masterchain block that commits
+ * the transaction), the previous key block and, when `with100` is set,
+ * the last 16 masterchain blocks with seqno divisible by 100 (only
+ * read by PREVMCBLOCKS_100).
+ *
+ * @param testnet  Mainnet/testnet flag.
+ * @param mcSeqno  Master‑block sequence number that contains the tx.
+ * @param options  Set `with100` to also fetch `lastMcBlocks100`.
+ */
+export const getPrevBlocksInfo = async (
+    testnet: boolean,
+    mcSeqno: number,
+    options?: {with100?: boolean},
+): Promise<PrevBlocksInfo> => {
+    const header = await toncenterV2Get<GetBlockHeaderResponse>(testnet, "getBlockHeader", {
+        workchain: -1,
+        shard: MASTERCHAIN_SHARD_HEX,
+        seqno: mcSeqno,
+    })
+
+    const lastSeqnos: number[] = []
+    for (let seqno = mcSeqno; seqno > Math.max(0, mcSeqno - LAST_MC_BLOCKS_COUNT); seqno--) {
+        lastSeqnos.push(seqno)
+    }
+
+    const with100 = options?.with100 ?? false
+    const seqnos100: number[] = []
+    if (with100) {
+        for (
+            let seqno = mcSeqno - (mcSeqno % 100);
+            seqno > 0 && seqnos100.length < LAST_MC_BLOCKS_COUNT;
+            seqno -= 100
+        ) {
+            seqnos100.push(seqno)
+        }
+    }
+
+    // sequential on purpose: parallel lookups hit the toncenter
+    // per-IP rate limit, and this path is rare enough that a couple
+    // of extra seconds do not matter
+    const lookupAll = async (seqnos: number[]): Promise<BlockId[]> => {
+        const blocks: BlockId[] = []
+        for (const seqno of seqnos) {
+            blocks.push(await lookupMasterchainBlock(testnet, seqno))
+        }
+        return blocks
+    }
+
+    const prevKeyBlock = await lookupMasterchainBlock(testnet, header.result.prev_key_block_seqno)
+    const lastMcBlocks = await lookupAll(lastSeqnos)
+    const lastMcBlocks100 = with100 ? await lookupAll(seqnos100) : undefined
+
+    return {prevKeyBlock, lastMcBlocks, lastMcBlocks100}
+}
+
+interface LookupBlockResponse {
+    ok: boolean
+    result: {
+        seqno: number
+        root_hash: string
+        file_hash: string
+    }
+}
+
+interface GetBlockHeaderResponse {
+    ok: boolean
+    result: {
+        prev_key_block_seqno: number
+    }
+}
+
+async function lookupMasterchainBlock(testnet: boolean, seqno: number): Promise<BlockId> {
+    const res = await toncenterV2Get<LookupBlockResponse>(testnet, "lookupBlock", {
+        workchain: -1,
+        shard: MASTERCHAIN_SHARD_HEX,
+        seqno,
+    })
+
+    return {
+        workchain: -1,
+        shard: MASTERCHAIN_SHARD,
+        seqno: res.result.seqno,
+        rootHash: Buffer.from(res.result.root_hash, "base64"),
+        fileHash: Buffer.from(res.result.file_hash, "base64"),
+    }
+}
+
+async function toncenterV2Get<T extends {ok: boolean; error?: string; code?: number}>(
+    testnet: boolean,
+    method: string,
+    params: Record<string, string | number>,
+): Promise<T> {
+    const RETRY_COUNT = 5
+    for (let attempt = 1; ; attempt++) {
+        try {
+            const res = await axios.get<T>(
+                `https://${testnet ? "testnet." : ""}toncenter.com/api/v2/${method}`,
+                {
+                    params,
+                    headers: {
+                        "X-API-Key": TONCENTER_API_KEY,
+                    },
+                    timeout: BASE_TIMEOUT,
+                },
+            )
+            if (!res.data.ok) {
+                throw new Error(
+                    `${method} request failed: ${res.data.error ?? "unknown error"}` +
+                        (res.data.code === undefined ? "" : ` (code ${res.data.code})`),
+                )
+            }
+            return res.data
+        } catch (error: unknown) {
+            if (
+                attempt < RETRY_COUNT &&
+                axios.isAxiosError(error) &&
+                error.response?.status === 429
+            ) {
+                await wait(1000 * attempt)
+                continue
+            }
+            throw error
+        }
+    }
 }
 
 /**
@@ -573,15 +770,18 @@ export const emulatePreviousTransactions = async (
  * into a convenience helper `emulate` and return both the helper
  * and the sandbox version metadata.
  *
- * @param blockConfig  Global config cell.
- * @param libs         Dict of referenced libraries or `undefined`.
- * @param randSeed     Random seed from master‑block header.
- * @returns            `{ emulatorVersion, emulate }`
+ * @param blockConfig    Global config cell.
+ * @param libs           Dict of referenced libraries or `undefined`.
+ * @param randSeed       Random seed from master‑block header.
+ * @param prevBlocksInfo Masterchain prev blocks info for the TVM c7
+ *                       context or `undefined` (see {@link getPrevBlocksInfo}).
+ * @returns              `{ emulatorVersion, emulate }`
  */
 export const prepareEmulator = async (
     blockConfig: string,
     libs: Cell | undefined,
     randSeed: Buffer,
+    prevBlocksInfo?: PrevBlocksInfo,
 ) => {
     const blockchain = await Blockchain.create()
     blockchain.verbosity.print = false // don't print logs to stdout
@@ -613,6 +813,7 @@ export const prepareEmulator = async (
             randomSeed: randSeed,
             ignoreChksig: false,
             debugEnabled: true,
+            prevBlocksInfo,
         })
     }
 
@@ -632,6 +833,7 @@ export const prepareEmulator = async (
             randomSeed: randSeed,
             ignoreChksig: false,
             debugEnabled: true,
+            prevBlocksInfo,
         })
     }
 
