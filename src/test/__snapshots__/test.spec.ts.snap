@@ -51,7 +51,7 @@ exports[`tick-tock transactions > should handle genesis block tick-tock transact
 
 exports[`tick-tock transactions > should handle genesis block tick-tock transaction on elector (block 1) 6`] = `undefined`;
 
-exports[`tick-tock transactions > should handle genesis block tick-tock transaction on elector (block 1) 7`] = `1000002n`;
+exports[`tick-tock transactions > should handle genesis block tick-tock transaction on elector (block 1) 7`] = `1000003n`;
 
 exports[`tick-tock transactions > should handle genesis block tick-tock transaction on elector (block 1) 8`] = `1573822385`;
 
