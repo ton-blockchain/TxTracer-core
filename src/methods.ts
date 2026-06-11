@@ -216,6 +216,11 @@ export const getBlockConfig = async (testnet: boolean, block: BlockInfo): Promis
  * The snapshot is converted to {@link ShardAccount} so it can be
  * directly fed into `runTransaction`.
  *
+ * The raw ShardAccount cell is fetched from toncenter
+ * `getShardAccountCell` and parsed as is, so every account field
+ * (including `storage_extra`, which a reconstruction from the parsed
+ * API would lose) is preserved.
+ *
  * @param testnet   Mainnet/testnet flag.
  * @param address   Account address.
  * @param block     Master‑block N (the one that contains the tx).
@@ -227,50 +232,46 @@ export const getBlockAccount = async (
     block: BlockInfo,
 ): Promise<ShardAccount> => {
     const blockSeqno = block.shards[0].seqno
+    // The genesis state (block 0) is not available via any API: fall
+    // back to the current block's state as best approximation.
+    // stateUpdateHashOk will be false for genesis transactions.
+    const seqno = blockSeqno > 1 ? blockSeqno - 1 : blockSeqno
 
-    const clientV4 = createTonClient4(testnet)
-    try {
-        const res = await clientV4.getAccount(blockSeqno - 1, address)
-        return createShardAccountFromAPI(res.account, address)
-    } catch (error: unknown) {
-        // @ton/ton testnet integration broken right now, fallback
-        console.error("Cannot get account from API", error)
-        try {
-            const res = await getBlockAccountFallback(testnet, blockSeqno - 1, address)
-            return createShardAccountFromAPI(res.data.account, address)
-        } catch (fallbackError: unknown) {
-            // Genesis block (seqno 0) is not available via any API.
-            // Fall back to the current block's state as best approximation.
-            // stateUpdateHashOk will be false for genesis transactions.
-            if (blockSeqno - 1 <= 0) {
-                console.warn(
-                    `Cannot get genesis state for ${address.toString()}, falling back to block ${blockSeqno}`,
-                )
-                try {
-                    const res = await clientV4.getAccount(blockSeqno, address)
-                    return createShardAccountFromAPI(res.account, address)
-                } catch {
-                    const res = await getBlockAccountFallback(testnet, blockSeqno, address)
-                    return createShardAccountFromAPI(res.data.account, address)
-                }
-            }
-            throw fallbackError
-        }
+    const res: AxiosResponse<GetShardAccountCellResponse> = await axios.get(
+        `https://${testnet ? "testnet." : ""}toncenter.com/api/v2/getShardAccountCell`,
+        {
+            params: {address: address.toString(), seqno},
+            headers: {
+                "X-API-Key": TONCENTER_API_KEY,
+            },
+            timeout: BASE_TIMEOUT,
+        },
+    )
+    const {ok, error, code, result} = res.data
+    if (!ok) {
+        throw new Error(
+            `getShardAccountCell request failed: ${error ?? "unknown error"}` +
+                (code === undefined ? "" : ` (code ${code})`),
+        )
     }
+    if (typeof result !== "object" || typeof result.bytes !== "string") {
+        throw new Error("getShardAccountCell response is missing result.bytes")
+    }
+
+    const cell = Cell.fromBase64(result.bytes)
+    return loadShardAccount(cell.asSlice())
 }
 
-async function getBlockAccountFallback(
-    testnet: boolean,
-    seqno: number,
-    address: Address,
-): Promise<
-    AxiosResponse<{
-        account: AccountFromAPI
-    }>
-> {
-    const endpoint = `https://${testnet ? "sandbox" : "mainnet"}-v4.tonhubapi.com`
-    const path = `${endpoint}/block/${seqno}/${address.toString({urlSafe: true})}`
-    return axios.get(path)
+interface GetShardAccountCellResponse {
+    ok: boolean
+    error?: string
+    code?: number
+    result?:
+        | string
+        | {
+              "@type": "tvm.cell"
+              bytes?: string
+          }
 }
 
 /**
