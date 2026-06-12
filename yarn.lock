@@ -777,13 +777,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ton/sandbox@npm:^0.41.0":
-  version: 0.41.0
-  resolution: "@ton/sandbox@npm:0.41.0"
+"@ton/sandbox@npm:^0.43.0":
+  version: 0.43.0
+  resolution: "@ton/sandbox@npm:0.43.0"
   dependencies:
-    "@vscode/debugadapter": "npm:^1.68.0"
     chalk: "npm:^4.1.2"
-    fflate: "npm:^0.8.2"
     table: "npm:^6.9.0"
     ton-assembly: "npm:0.6.1"
   peerDependencies:
@@ -797,7 +795,7 @@ __metadata:
       optional: true
     jest:
       optional: true
-  checksum: 10c0/15471f4dfa35d17182f9577941a85ea4c2e88ed0bf2ece8bacd1f7302bd42195d82eaf205fb5940e334a7930c302546a2c3fbedf0065318de6531191a9820238
+  checksum: 10c0/42939be64c17f8d8ad0623fb19c403c95f40c5d16e2153f58e439eafb7101bbdb3484631035a2bed26cbb9490584a5d7d3395acb8ce218606bec9611797ae6fc
   languageName: node
   linkType: hard
 
@@ -1104,22 +1102,6 @@ __metadata:
     "@vitest/pretty-format": "npm:4.0.18"
     tinyrainbow: "npm:^3.0.3"
   checksum: 10c0/4a3c43c1421eb90f38576926496f6c80056167ba111e63f77cf118983902673737a1a38880b890d7c06ec0a12475024587344ee502b3c43093781533022f2aeb
-  languageName: node
-  linkType: hard
-
-"@vscode/debugadapter@npm:^1.68.0":
-  version: 1.68.0
-  resolution: "@vscode/debugadapter@npm:1.68.0"
-  dependencies:
-    "@vscode/debugprotocol": "npm:1.68.0"
-  checksum: 10c0/68aaaf283eaabff42c89055221f9602c1e2560027b474a8b109c89129e5d37145b98c0d496b37f1058dc6fdbcdc02e28e2191bf82bfb10832199106ca9d5dfaf
-  languageName: node
-  linkType: hard
-
-"@vscode/debugprotocol@npm:1.68.0":
-  version: 1.68.0
-  resolution: "@vscode/debugprotocol@npm:1.68.0"
-  checksum: 10c0/e4b21bad518f7db66f7bd5c07b8303af36dbee920c9250d0f5d3910fb181ee1f7e83c536004b3258041d54d18c86fc361de3c2225958a458dbf5ece99c317870
   languageName: node
   linkType: hard
 
@@ -3509,7 +3491,7 @@ __metadata:
     "@ton-community/func-js": "npm:^0.10.0"
     "@ton/core": "npm:^0.61.0"
     "@ton/crypto": "npm:^3.3.0"
-    "@ton/sandbox": "npm:^0.41.0"
+    "@ton/sandbox": "npm:^0.43.0"
     "@ton/test-utils": "npm:^0.10.0"
     "@ton/ton": "npm:^15.3.1"
     "@types/node": "npm:^22.14.0"
